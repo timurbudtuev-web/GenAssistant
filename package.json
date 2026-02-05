@@ -1,0 +1,53 @@
+{
+  "name": "genassistant-desktop",
+  "version": "2.0.0",
+  "description": "GenAssistant 2.0 - Desktop приложение для МегаФона",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder",
+    "build:win": "electron-builder --win",
+    "build:mac": "electron-builder --mac",
+    "build:linux": "electron-builder --linux"
+  },
+  "keywords": [
+    "genassistant",
+    "ai",
+    "megafon",
+    "desktop"
+  ],
+  "author": "МегаФон",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^40.1.0",
+    "electron-builder": "^24.9.1"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.1",
+    "electron-store": "^8.1.0"
+  },
+  "build": {
+    "appId": "com.megafon.genassistant",
+    "productName": "GenAssistant 2.0",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "src/**/*",
+      "index.html"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "assets/icon.ico"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "assets/icon.icns"
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "assets/icon.png"
+    }
+  }
+}

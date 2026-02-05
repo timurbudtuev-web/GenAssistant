@@ -1,0 +1,4026 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GenAssistant 2.0</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --megafon-green: #00B956;
+            --megafon-purple: #9B30FF;
+            --bg-light: #F5F5F5;
+            --bg-white: #FFFFFF;
+            --text-dark: #1A1A1A;
+            --text-gray: #666666;
+            --border-gray: #E0E0E0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--bg-light);
+            color: var(--text-dark);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 240px;
+            background: var(--bg-white);
+            border-right: 1px solid var(--border-gray);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid var(--border-gray);
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--megafon-green), var(--megafon-purple));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2em;
+        }
+
+        .logo-text {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px 0;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text-gray);
+            font-size: 0.95em;
+            text-decoration: none;
+        }
+
+        .nav-item:hover {
+            background: var(--bg-light);
+            color: var(--text-dark);
+        }
+
+        .nav-item.active {
+            background: var(--bg-light);
+            color: var(--megafon-green);
+            font-weight: 500;
+            border-left: 3px solid var(--megafon-green);
+            padding-left: 17px;
+        }
+
+        .nav-icon {
+            font-size: 1.1em;
+            width: 20px;
+            text-align: center;
+        }
+
+        .nav-divider {
+            height: 1px;
+            background: var(--border-gray);
+            margin: 8px 0;
+        }
+
+        .nav-section-title {
+            padding: 12px 20px 8px;
+            font-size: 0.75em;
+            text-transform: uppercase;
+            color: #999;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .sidebar-footer {
+            padding: 15px 20px;
+            border-top: 1px solid var(--border-gray);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--megafon-purple);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+
+        .user-name {
+            font-size: 0.9em;
+            color: var(--text-dark);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .top-bar {
+            background: var(--bg-white);
+            padding: 16px 32px;
+            border-bottom: 1px solid var(--border-gray);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-gray);
+            font-size: 0.9em;
+        }
+
+        .breadcrumb span {
+            cursor: pointer;
+        }
+
+        .breadcrumb span:hover {
+            color: var(--megafon-green);
+        }
+
+        .page-title {
+            font-size: 1.5em;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .top-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .icon-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            border: 1px solid var(--border-gray);
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 1.1em;
+        }
+
+        .icon-btn:hover {
+            background: var(--bg-light);
+            border-color: var(--megafon-green);
+        }
+
+        /* Content Area */
+        .content-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 32px;
+        }
+
+        .search-box {
+            max-width: 600px;
+            margin-bottom: 24px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border-gray);
+            border-radius: 8px;
+            font-size: 0.95em;
+            background: white;
+            transition: all 0.2s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--megafon-green);
+            box-shadow: 0 0 0 3px rgba(0, 185, 86, 0.1);
+        }
+
+        .section-header {
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 0.85em;
+            text-transform: uppercase;
+            color: #999;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .section-count {
+            font-size: 0.9em;
+            color: var(--text-gray);
+        }
+
+        /* Apps Grid - More Compact */
+        .apps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 12px;
+        }
+
+        .app-card {
+            background: white;
+            border: 1px solid var(--border-gray);
+            border-radius: 10px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 8px;
+        }
+
+        .app-card:hover {
+            border-color: var(--megafon-green);
+            box-shadow: 0 4px 12px rgba(0, 185, 86, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .app-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4em;
+            flex-shrink: 0;
+        }
+
+        .app-icon.green {
+            background: linear-gradient(135deg, var(--megafon-green), #00D966);
+            color: white;
+        }
+
+        .app-icon.purple {
+            background: linear-gradient(135deg, var(--megafon-purple), #B85CFF);
+            color: white;
+        }
+
+        .app-icon.blue {
+            background: linear-gradient(135deg, #00A8E8, #007EA7);
+            color: white;
+        }
+
+        .app-icon.orange {
+            background: linear-gradient(135deg, #FF6B35, #F7931E);
+            color: white;
+        }
+
+        .app-icon.gradient {
+            background: linear-gradient(135deg, var(--megafon-green), var(--megafon-purple));
+            color: white;
+        }
+
+        .app-name {
+            font-size: 0.9em;
+            font-weight: 500;
+            color: var(--text-dark);
+            line-height: 1.3;
+        }
+
+        .app-badge {
+            font-size: 0.7em;
+            background: var(--bg-light);
+            color: var(--text-gray);
+            padding: 3px 8px;
+            border-radius: 10px;
+        }
+
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border: 1px solid var(--border-gray);
+            border-left: 3px solid var(--megafon-green);
+            padding: 16px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            opacity: 0;
+            transform: translateX(400px);
+            transition: all 0.3s;
+            z-index: 1000;
+            max-width: 320px;
+        }
+
+        .notification.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* Responsive */
+        @media (max-width: 968px) {
+            .sidebar {
+                width: 200px;
+            }
+
+            .apps-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                left: -240px;
+                z-index: 1000;
+                transition: left 0.3s;
+            }
+
+            .sidebar.open {
+                left: 0;
+            }
+
+            .content-area {
+                padding: 20px;
+            }
+        }
+
+        /* Self-Service AI Styles */
+        .wizard-container {
+            background: white;
+            border: 1px solid var(--border-gray);
+            border-radius: 12px;
+            padding: 40px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .wizard-steps {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 50px;
+        }
+
+        .step-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        .step-circle {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--bg-light);
+            border: 2px solid var(--border-gray);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: var(--text-gray);
+            transition: all 0.3s;
+        }
+
+        .step-item.active .step-circle {
+            background: var(--megafon-green);
+            border-color: var(--megafon-green);
+            color: white;
+        }
+
+        .step-item.completed .step-circle {
+            background: var(--megafon-green);
+            border-color: var(--megafon-green);
+            color: white;
+        }
+
+        .step-label {
+            margin-top: 10px;
+            font-size: 0.85em;
+            color: var(--text-gray);
+            font-weight: 500;
+        }
+
+        .step-item.active .step-label {
+            color: var(--megafon-green);
+            font-weight: 600;
+        }
+
+        .step-line {
+            width: 80px;
+            height: 2px;
+            background: var(--border-gray);
+            margin: 0 10px;
+            margin-bottom: 25px;
+        }
+
+        .step-item.completed + .step-line {
+            background: var(--megafon-green);
+        }
+
+        .wizard-content {
+            min-height: 400px;
+            margin-bottom: 30px;
+        }
+
+        .wizard-step {
+            display: none;
+        }
+
+        .wizard-step.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .step-content {
+            text-align: center;
+        }
+
+        .step-title {
+            font-size: 1.8em;
+            color: var(--text-dark);
+            margin-bottom: 10px;
+        }
+
+        .step-description {
+            font-size: 1em;
+            color: var(--text-gray);
+            margin-bottom: 30px;
+        }
+
+        /* Avatar Selection */
+        .avatar-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
+            gap: 15px;
+            max-width: 700px;
+            margin: 30px auto;
+        }
+
+        .avatar-option {
+            width: 70px;
+            height: 70px;
+            border: 2px solid var(--border-gray);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: white;
+        }
+
+        .avatar-option:hover {
+            border-color: var(--megafon-green);
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(0, 185, 86, 0.2);
+        }
+
+        .avatar-option.selected {
+            border-color: var(--megafon-green);
+            background: var(--megafon-light-green);
+            border-width: 3px;
+        }
+
+        .avatar-preview {
+            margin-top: 40px;
+        }
+
+        .preview-label {
+            font-size: 0.9em;
+            color: var(--text-gray);
+            margin-bottom: 15px;
+        }
+
+        .preview-card {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            padding: 30px;
+            background: var(--bg-light);
+            border: 2px solid var(--border-gray);
+            border-radius: 16px;
+        }
+
+        .preview-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, var(--megafon-green), var(--megafon-purple));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5em;
+            color: white;
+        }
+
+        .preview-name {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        /* Prompt Templates */
+        .prompt-templates {
+            max-width: 800px;
+            margin: 20px auto;
+            text-align: left;
+        }
+
+        .template-label {
+            font-size: 0.9em;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 10px;
+        }
+
+        .template-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .template-btn {
+            padding: 8px 16px;
+            border: 1px solid var(--border-gray);
+            background: white;
+            border-radius: 8px;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .template-btn:hover {
+            border-color: var(--megafon-green);
+            background: var(--megafon-light-green);
+        }
+
+        .prompt-hint {
+            margin-top: 10px;
+            font-size: 0.85em;
+            color: var(--megafon-green);
+            text-align: left;
+        }
+
+        /* File Upload */
+        .upload-area {
+            max-width: 600px;
+            margin: 30px auto;
+            padding: 60px 40px;
+            border: 2px dashed var(--border-gray);
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .upload-area:hover {
+            border-color: var(--megafon-green);
+            background: var(--megafon-light-green);
+        }
+
+        .upload-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+
+        .upload-text {
+            font-size: 1.1em;
+            color: var(--text-dark);
+            margin-bottom: 10px;
+        }
+
+        .upload-hint {
+            font-size: 0.85em;
+            color: var(--text-gray);
+        }
+
+        .files-list {
+            max-width: 600px;
+            margin: 20px auto;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: var(--bg-light);
+            border: 1px solid var(--border-gray);
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .file-icon {
+            font-size: 1.5em;
+        }
+
+        .file-info {
+            flex: 1;
+        }
+
+        .file-name {
+            font-size: 0.9em;
+            font-weight: 500;
+            color: var(--text-dark);
+        }
+
+        .file-size {
+            font-size: 0.8em;
+            color: var(--text-gray);
+        }
+
+        .file-remove {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            border: 1px solid var(--border-gray);
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .file-remove:hover {
+            border-color: #ff6b6b;
+            color: #ff6b6b;
+        }
+
+        .skip-hint {
+            margin-top: 30px;
+            padding: 15px;
+            background: #FFF9E6;
+            border-radius: 8px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .skip-hint p {
+            margin: 0;
+            font-size: 0.9em;
+            color: #856404;
+        }
+
+        /* Publication Options */
+        .publication-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            max-width: 900px;
+            margin: 30px auto;
+        }
+
+        .pub-option {
+            padding: 25px;
+            border: 2px solid var(--border-gray);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            text-align: center;
+        }
+
+        .pub-option:hover {
+            border-color: var(--megafon-green);
+            box-shadow: 0 4px 12px rgba(0, 185, 86, 0.1);
+        }
+
+        .pub-option.selected {
+            border-color: var(--megafon-green);
+            background: var(--megafon-light-green);
+            border-width: 3px;
+        }
+
+        .pub-icon {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+        }
+
+        .pub-title {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+        }
+
+        .pub-description {
+            font-size: 0.85em;
+            color: var(--text-gray);
+            line-height: 1.4;
+        }
+
+        .pub-radio {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border-gray);
+            border-radius: 50%;
+            transition: all 0.2s;
+        }
+
+        .pub-option.selected .pub-radio {
+            border-color: var(--megafon-green);
+            background: var(--megafon-green);
+        }
+
+        .pub-option.selected .pub-radio::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        .team-selection {
+            max-width: 500px;
+            margin: 30px auto;
+        }
+
+        /* Summary Box */
+        .summary-box {
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 25px;
+            background: var(--bg-light);
+            border: 1px solid var(--border-gray);
+            border-radius: 12px;
+            text-align: left;
+        }
+
+        .summary-title {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 20px;
+        }
+
+        .summary-item {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-gray);
+        }
+
+        .summary-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .summary-label {
+            font-size: 0.9em;
+            font-weight: 600;
+            color: var(--text-gray);
+            min-width: 100px;
+        }
+
+        .summary-value {
+            flex: 1;
+            font-size: 0.9em;
+            color: var(--text-dark);
+        }
+
+        /* Wizard Navigation */
+        .wizard-navigation {
+            display: flex;
+            gap: 15px;
+            padding-top: 30px;
+            border-top: 1px solid var(--border-gray);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--text-dark);
+            border: 1px solid var(--border-gray);
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-light);
+            border-color: var(--text-dark);
+        }
+
+        .my-apps-section {
+            padding-top: 40px;
+            border-top: 2px solid var(--border-gray);
+        }
+
+        /* Chat Modal */
+        .chat-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chat-modal.active {
+            display: flex;
+        }
+
+        .chat-container {
+            width: 90%;
+            max-width: 900px;
+            height: 80vh;
+            background: white;
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .chat-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border-gray);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .chat-app-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .chat-app-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--megafon-green), var(--megafon-purple));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8em;
+            color: white;
+        }
+
+        .chat-app-name {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .chat-app-status {
+            font-size: 0.85em;
+            color: var(--megafon-green);
+        }
+
+        .close-chat-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            border: 1px solid var(--border-gray);
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 1.2em;
+        }
+
+        .close-chat-btn:hover {
+            background: var(--bg-light);
+            border-color: var(--text-dark);
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .welcome-message {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-gray);
+        }
+
+        .welcome-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+
+        .welcome-message h3 {
+            font-size: 1.5em;
+            color: var(--text-dark);
+            margin-bottom: 10px;
+        }
+
+        .welcome-message p {
+            font-size: 1em;
+        }
+
+        .message {
+            display: flex;
+            gap: 12px;
+            max-width: 80%;
+            animation: messageSlideIn 0.3s;
+        }
+
+        @keyframes messageSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.user {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+            flex-shrink: 0;
+        }
+
+        .message.user .message-avatar {
+            background: var(--megafon-purple);
+            color: white;
+        }
+
+        .message.assistant .message-avatar {
+            background: var(--megafon-light-green);
+        }
+
+        .message-content {
+            background: var(--bg-light);
+            padding: 12px 16px;
+            border-radius: 12px;
+            line-height: 1.5;
+        }
+
+        .message.user .message-content {
+            background: var(--megafon-green);
+            color: white;
+        }
+
+        .message.assistant .message-content {
+            background: var(--bg-light);
+            color: var(--text-dark);
+        }
+
+        .message-content p {
+            margin: 0 0 8px 0;
+        }
+
+        .message-content p:last-child {
+            margin-bottom: 0;
+        }
+
+        .thinking-indicator {
+            display: flex;
+            gap: 4px;
+            padding: 12px 16px;
+            background: var(--bg-light);
+            border-radius: 12px;
+            width: fit-content;
+        }
+
+        .thinking-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--text-gray);
+            animation: thinkingDot 1.4s infinite;
+        }
+
+        .thinking-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .thinking-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes thinkingDot {
+            0%, 60%, 100% {
+                transform: translateY(0);
+            }
+            30% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .chat-input-area {
+            padding: 20px 24px;
+            border-top: 1px solid var(--border-gray);
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid var(--border-gray);
+            border-radius: 10px;
+            font-size: 0.95em;
+            resize: none;
+            max-height: 120px;
+            font-family: inherit;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: var(--megafon-green);
+        }
+
+        .send-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            border: none;
+            background: var(--megafon-green);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        .send-btn:hover {
+            background: #00D966;
+            transform: scale(1.05);
+        }
+
+        .send-btn:disabled {
+            background: var(--border-gray);
+            cursor: not-allowed;
+            transform: scale(1);
+        }
+
+        .send-icon {
+            font-size: 1.2em;
+        }
+
+        .builder-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-top: 24px;
+        }
+
+        .builder-panel {
+            background: white;
+            border: 1px solid var(--border-gray);
+            border-radius: 12px;
+            padding: 24px;
+        }
+
+        .panel-title {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.9em;
+            font-weight: 500;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+        }
+
+        .form-input,
+        .form-textarea,
+        .form-select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border-gray);
+            border-radius: 8px;
+            font-size: 0.9em;
+            background: white;
+            transition: all 0.2s;
+        }
+
+        .form-input:focus,
+        .form-textarea:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: var(--megafon-green);
+            box-shadow: 0 0 0 3px rgba(0, 185, 86, 0.1);
+        }
+
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+        }
+
+        .btn-primary {
+            background: var(--megafon-green);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: 100%;
+        }
+
+        .btn-primary:hover {
+            background: #00D966;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 185, 86, 0.2);
+        }
+
+        .agent-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .agent-item {
+            background: var(--bg-light);
+            border: 1px solid var(--border-gray);
+            border-radius: 8px;
+            padding: 14px;
+            transition: all 0.2s;
+        }
+
+        .agent-item:hover {
+            border-color: var(--megafon-green);
+            background: white;
+        }
+
+        .agent-title {
+            font-size: 0.95em;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 6px;
+        }
+
+        .agent-description {
+            font-size: 0.85em;
+            color: var(--text-gray);
+            line-height: 1.4;
+            margin-bottom: 8px;
+        }
+
+        .agent-meta {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            font-weight: 500;
+            background: var(--bg-light);
+            color: var(--text-gray);
+        }
+
+        /* Skills styles removed */
+
+        /* Cowork Styles */
+        .cowork-header-banner {
+            background: linear-gradient(135deg, var(--megafon-green), var(--megafon-purple));
+            padding: 30px 40px;
+            border-radius: 16px;
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        }
+
+        .banner-content h1 {
+            color: white;
+        }
+
+        .banner-stats {
+            display: flex;
+            gap: 30px;
+        }
+
+        .stat-item {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px 25px;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: 700;
+            color: white;
+        }
+
+        .stat-label {
+            font-size: 0.85em;
+            color: white;
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+
+        .cowork-main {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            height: calc(100vh - 350px);
+        }
+
+        /* Cowork Tabs */
+        .cowork-tabs {
+            display: flex;
+            gap: 8px;
+            padding: 0 0 16px 0;
+            border-bottom: 2px solid var(--border-gray);
+        }
+
+        .cowork-tab {
+            padding: 14px 24px;
+            border: none;
+            background: white;
+            border-radius: 10px 10px 0 0;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1em;
+            font-weight: 500;
+            color: var(--text-gray);
+            position: relative;
+        }
+
+        .cowork-tab:hover {
+            background: var(--bg-light);
+            color: var(--text-dark);
+        }
+
+        .cowork-tab.active {
+            background: white;
+            color: var(--megafon-green);
+            font-weight: 600;
+            border-bottom: 3px solid var(--megafon-green);
+        }
+
+        .tab-icon {
+            font-size: 1.2em;
+        }
+
+        .tab-badge {
+            background: var(--megafon-green);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            font-weight: 600;
+            margin-left: 4px;
+        }
+
+        .cowork-tab-content {
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .cowork-tab-panel {
+            display: none;
+            height: 100%;
+        }
+
+        .cowork-tab-panel.active {
+            display: block;
+        }
+
+        /* Files Tab */
+        .files-panel-full {
+            height: 100%;
+            background: white;
+            border: 1px solid var(--border-gray);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .panel-header-large {
+            padding: 24px 30px;
+            border-bottom: 1px solid var(--border-gray);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .panel-header-large h3 {
+            margin: 0;
+            font-size: 1.5em;
+            color: var(--text-dark);
+        }
+
+        .file-browser-large {
+            flex: 1;
+            overflow-y: auto;
+            padding: 30px;
+        }
+
+        .empty-state-large {
+            text-align: center;
+            padding: 80px 40px;
+            color: var(--text-gray);
+        }
+
+        .empty-icon {
+            font-size: 5em;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        .empty-state-large h3 {
+            font-size: 1.5em;
+            color: var(--text-dark);
+            margin-bottom: 10px;
+        }
+
+        .empty-state-large p {
+            font-size: 1em;
+            margin-bottom: 20px;
+        }
+
+        .file-item-large {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 20px;
+            background: var(--bg-light);
+            border: 2px solid var(--border-gray);
+            border-radius: 12px;
+            margin-bottom: 16px;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .file-item-large:hover {
+            border-color: var(--megafon-green);
+            background: white;
+            box-shadow: 0 4px 12px rgba(0, 185, 86, 0.1);
+        }
+
+        .file-icon-large {
+            font-size: 3em;
+        }
+
+        .file-info-large {
+            flex: 1;
+        }
+
+        .file-name-large {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 6px;
+        }
+
+        .file-size-large {
+            font-size: 0.9em;
+            color: var(--text-gray);
+        }
+
+        .file-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .file-action-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            border: 1px solid var(--border-gray);
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .file-action-btn:hover {
+            background: var(--bg-light);
+            border-color: var(--megafon-green);
+        }
+
+        /* Logs Tab */
+        .logs-panel-full {
+            height: 100%;
+            background: white;
+            border: 1px solid var(--border-gray);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .execution-log-large {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px 30px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            background: #1e1e1e;
+            color: #00ff00;
+        }
+
+        .cowork-chat-container {
+            background: white;
+            border: 1px solid var(--border-gray);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .cowork-chat-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border-gray);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .cowork-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .cowork-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--megafon-green), var(--megafon-purple));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8em;
+            color: white;
+        }
+
+        .cowork-name {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .cowork-status {
+            font-size: 0.85em;
+            color: var(--megafon-green);
+        }
+
+        .cowork-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            border: 1px solid var(--border-gray);
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 1.1em;
+        }
+
+        .action-btn:hover {
+            background: var(--bg-light);
+            border-color: var(--megafon-green);
+        }
+
+        .cowork-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .cowork-capabilities {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 20px;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .capability-item {
+            background: var(--bg-light);
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 0.9em;
+            text-align: center;
+            border: 1px solid var(--border-gray);
+        }
+
+        .cowork-input-area {
+            padding: 20px 24px;
+            border-top: 1px solid var(--border-gray);
+            display: flex;
+            gap: 12px;
+            flex-direction: column;
+            background: linear-gradient(to bottom, white, #f8f9fa);
+        }
+
+        .input-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .cowork-tools {
+            display: flex;
+            gap: 8px;
+        }
+
+        .tool-btn {
+            padding: 10px 18px;
+            border: 2px solid var(--border-gray);
+            background: white;
+            border-radius: 8px;
+            font-size: 0.9em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tool-btn:hover {
+            background: var(--megafon-light-green);
+            border-color: var(--megafon-green);
+            transform: translateY(-1px);
+        }
+
+        .tool-btn.highlighted {
+            border-color: var(--megafon-green);
+            background: var(--megafon-light-green);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                box-shadow: 0 0 0 0 rgba(0, 185, 86, 0.4);
+            }
+            50% {
+                box-shadow: 0 0 0 8px rgba(0, 185, 86, 0);
+            }
+        }
+
+        .cowork-input {
+            flex: 1;
+            padding: 14px 18px;
+            border: 2px solid var(--border-gray);
+            border-radius: 10px;
+            font-size: 1em;
+            resize: none;
+            max-height: 150px;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+
+        .cowork-input:focus {
+            outline: none;
+            border-color: var(--megafon-green);
+            box-shadow: 0 0 0 3px rgba(0, 185, 86, 0.1);
+        }
+
+        .cowork-send-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            border: none;
+            background: linear-gradient(135deg, var(--megafon-green), #00D966);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            flex-shrink: 0;
+            align-self: flex-end;
+            box-shadow: 0 4px 12px rgba(0, 185, 86, 0.3);
+        }
+
+        .cowork-send-btn:hover {
+            background: linear-gradient(135deg, #00D966, var(--megafon-green));
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 185, 86, 0.4);
+        }
+
+        .send-icon {
+            font-size: 1.3em;
+        }
+
+        /* Skills Panel */
+        /* Skills panel styles removed */
+
+        /* Sidebar */
+        .cowork-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .sidebar-panel {
+            background: white;
+            border: 1px solid var(--border-gray);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .sidebar-panel:first-child {
+            flex: 1;
+        }
+
+        .sidebar-panel:last-child {
+            height: 300px;
+        }
+
+        .panel-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--border-gray);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .panel-header h4 {
+            margin: 0;
+            font-size: 0.95em;
+            color: var(--text-dark);
+        }
+
+        .clear-log-btn {
+            padding: 4px 12px;
+            font-size: 0.8em;
+            border: 1px solid var(--border-gray);
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .clear-log-btn:hover {
+            background: var(--bg-light);
+        }
+
+        .file-browser {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-gray);
+        }
+
+        .file-item-browser {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .file-item-browser:hover {
+            background: var(--bg-light);
+        }
+
+        .file-icon-browser {
+            font-size: 1.5em;
+        }
+
+        .file-info-browser {
+            flex: 1;
+        }
+
+        .file-name-browser {
+            font-size: 0.9em;
+            font-weight: 500;
+            color: var(--text-dark);
+        }
+
+        .file-size-browser {
+            font-size: 0.75em;
+            color: var(--text-gray);
+        }
+
+        .execution-log {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+        }
+
+        .log-entry {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 8px;
+            padding: 6px 0;
+        }
+
+        .log-time {
+            color: var(--text-gray);
+            font-size: 0.9em;
+        }
+
+        .log-message {
+            flex: 1;
+        }
+
+        .log-entry.info .log-message {
+            color: var(--megafon-green);
+        }
+
+        .log-entry.warning .log-message {
+            color: #FFB020;
+        }
+
+        .log-entry.error .log-message {
+            color: #ff6b6b;
+        }
+
+        .log-entry.success .log-message {
+            color: var(--megafon-green);
+        }
+
+        .cowork-layout {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 24px;
+            margin-top: 24px;
+        }
+
+        .scenarios-panel {
+            background: white;
+            border: 1px solid var(--border-gray);
+            border-radius: 12px;
+            padding: 24px;
+        }
+
+        .scenario-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .scenario-item {
+            background: var(--bg-light);
+            border: 1px solid var(--border-gray);
+            border-left: 3px solid var(--megafon-purple);
+            border-radius: 8px;
+            padding: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .scenario-item:hover {
+            background: white;
+            border-color: var(--megafon-purple);
+            box-shadow: 0 2px 8px rgba(155, 48, 255, 0.1);
+        }
+
+        .scenario-title {
+            font-size: 0.95em;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 6px;
+        }
+
+        .scenario-description {
+            font-size: 0.85em;
+            color: var(--text-gray);
+            line-height: 1.4;
+            margin-bottom: 10px;
+        }
+
+        .scenario-badges {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-bottom: 8px;
+        }
+
+        .scenario-status {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            font-weight: 500;
+        }
+
+        .scenario-status.active {
+            background: #E6F9F0;
+            color: var(--megafon-green);
+        }
+
+        .scenario-status.draft {
+            background: #FFF3CD;
+            color: #856404;
+        }
+
+        .terminal-panel {
+            background: white;
+            border: 1px solid var(--border-gray);
+            border-radius: 12px;
+            padding: 24px;
+        }
+
+        .terminal {
+            background: #1e1e1e;
+            color: var(--megafon-green);
+            border-radius: 8px;
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+            height: 500px;
+            overflow-y: auto;
+            line-height: 1.5;
+        }
+
+        .terminal-line {
+            margin-bottom: 6px;
+        }
+
+        .terminal-line.command {
+            color: var(--megafon-purple);
+            font-weight: 600;
+        }
+
+        .terminal-line.success {
+            color: var(--megafon-green);
+        }
+
+        .terminal-line.error {
+            color: #ff6b6b;
+        }
+
+        .terminal-line.info {
+            color: #FFD700;
+        }
+
+        @media (max-width: 968px) {
+            .builder-layout,
+            .cowork-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+        /* Cowork Chat Styles */
+        .cowork-simple-layout {
+            max-width: 860px;
+            margin: 0 auto;
+            height: calc(100vh - 140px);
+            padding: 0 20px;
+        }
+
+        .cowork-chat-simple {
+            background: var(--bg-white);
+            border: 1px solid var(--border-gray);
+            border-radius: 16px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
+
+        .cowork-messages-simple {
+            flex: 1;
+            overflow-y: auto;
+            padding: 32px 28px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .cowork-messages-simple::-webkit-scrollbar {
+            width: 6px;
+        }
+        .cowork-messages-simple::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .cowork-messages-simple::-webkit-scrollbar-thumb {
+            background: #d1d5db;
+            border-radius: 3px;
+        }
+
+        .welcome-msg {
+            text-align: center;
+            padding: 80px 20px 40px;
+            color: var(--text-gray);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .welcome-icon-wrap {
+            width: 72px;
+            height: 72px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, #E6F9F0, #E0F0FF);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--megafon-green);
+            margin-bottom: 20px;
+        }
+
+        .welcome-msg h3 {
+            font-size: 1.4em;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+        }
+
+        .welcome-msg p {
+            font-size: 0.95em;
+            color: var(--text-gray);
+            max-width: 400px;
+            line-height: 1.5;
+        }
+
+        .welcome-hints {
+            display: flex;
+            gap: 8px;
+            margin-top: 28px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .welcome-hint {
+            padding: 8px 16px;
+            background: var(--bg-light);
+            border: 1px solid var(--border-gray);
+            border-radius: 20px;
+            font-size: 0.85em;
+            color: var(--text-gray);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .welcome-hint:hover {
+            border-color: var(--megafon-green);
+            color: var(--megafon-green);
+            background: #F0FFF7;
+        }
+
+        .attached-preview {
+            padding: 8px 20px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            border-top: 1px solid var(--border-gray);
+            background: #FAFAFA;
+        }
+
+        .cowork-input-simple {
+            padding: 16px 20px;
+            border-top: 1px solid var(--border-gray);
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+            background: var(--bg-white);
+        }
+
+        .cowork-attach-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            border: 1px solid var(--border-gray);
+            background: var(--bg-white);
+            color: var(--text-gray);
+            cursor: pointer;
+            transition: all 0.15s;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .cowork-attach-btn:hover {
+            border-color: var(--megafon-green);
+            color: var(--megafon-green);
+            background: #F0FFF7;
+        }
+
+        .file-count-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--megafon-green);
+            color: white;
+            font-size: 0.65em;
+            width: 18px;
+            height: 18px;
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+
+        .cowork-input-simple textarea {
+            flex: 1;
+            padding: 10px 16px;
+            border: 1px solid var(--border-gray);
+            border-radius: 12px;
+            font-size: 0.9em;
+            resize: none;
+            min-height: 40px;
+            max-height: 140px;
+            font-family: inherit;
+            line-height: 1.5;
+            background: var(--bg-light);
+            transition: border-color 0.15s, background 0.15s;
+        }
+
+        .cowork-input-simple textarea:focus {
+            outline: none;
+            border-color: var(--megafon-green);
+            background: var(--bg-white);
+            box-shadow: 0 0 0 3px rgba(0, 185, 86, 0.08);
+        }
+
+        .cowork-send-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            border: none;
+            background: var(--megafon-green);
+            color: white;
+            cursor: pointer;
+            transition: all 0.15s;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .cowork-send-btn:hover {
+            background: #00A34D;
+            transform: scale(1.04);
+        }
+
+        .cowork-send-btn:active {
+            transform: scale(0.97);
+        }
+
+        .file-chip {
+            background: var(--bg-white);
+            border: 1px solid var(--border-gray);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-dark);
+        }
+
+        .file-chip-remove {
+            cursor: pointer;
+            color: var(--text-gray);
+        }
+
+        .file-chip-remove:hover {
+            color: #ff6b6b;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo-icon">🚀</div>
+            <div class="logo-text">GenAssistant</div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a class="nav-item active" onclick="showSection('profiles')">
+                <span class="nav-icon">✨</span>
+                <span>AI Профили</span>
+            </a>
+            
+            <div class="nav-divider"></div>
+            <div class="nav-section-title">Платформа 2.0</div>
+            
+            <a class="nav-item" onclick="showSection('selfservice')">
+                <span class="nav-icon">🎨</span>
+                <span>Self-Service AI</span>
+            </a>
+            <a class="nav-item" onclick="showSection('cowork')">
+                <span class="nav-icon">⚙️</span>
+                <span>Cowork</span>
+            </a>
+
+            <div class="nav-divider"></div>
+            <div class="nav-section-title">Последние</div>
+
+            <a class="nav-item">
+                <span class="nav-icon">📊</span>
+                <span>Анализ табличных...</span>
+            </a>
+            <a class="nav-item">
+                <span class="nav-icon">📢</span>
+                <span>Генерация рекла...</span>
+            </a>
+            <a class="nav-item">
+                <span class="nav-icon">🛠️</span>
+                <span>Ассистент руково...</span>
+            </a>
+            <a class="nav-item">
+                <span class="nav-icon">💬</span>
+                <span>Спроси у GPT</span>
+            </a>
+
+            <div class="nav-divider"></div>
+
+            <a class="nav-item" onclick="showSection('settings')">
+                <span class="nav-icon">⚙️</span>
+                <span>Настройки</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="user-avatar">TB</div>
+            <div class="user-name">timur.r.budtuev</div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div class="breadcrumb">
+                <span onclick="showSection('profiles')">← GenAssistant</span>
+            </div>
+            <div class="top-actions">
+                <button class="icon-btn" title="Избранное" onclick="showNotification('Избранные профили')">⭐</button>
+                <button class="icon-btn" title="Настройки" onclick="showSection('settings')">⚙️</button>
+                <button class="icon-btn" title="Помощь">❓</button>
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="content-area">
+            <!-- Profiles Section -->
+            <section id="profiles" class="content-section">
+                <h1 class="page-title">Ваши доступные профили</h1>
+                
+                <div class="search-box">
+                    <input type="text" class="search-input" placeholder="🔍 Поиск профиля...">
+                </div>
+
+                <div class="section-header">
+                    <div class="section-count">У вас есть 27 доступных профилей</div>
+                </div>
+
+                <div class="apps-grid">
+                    <div class="app-card" onclick="openStandardChat('gpt')">
+                        <div class="app-icon blue">💬</div>
+                        <div class="app-name">Спроси у GPT</div>
+                        <p style="font-size: 0.75em; color: var(--text-gray); margin-top: 4px; line-height: 1.3;">Для работы с ИИ и анализа документов</p>
+                    </div>
+
+                    <div class="app-card" onclick="openStandardChat('megacolleg')">
+                        <div class="app-icon green">🤝</div>
+                        <div class="app-name">МегаКоллега</div>
+                        <p style="font-size: 0.75em; color: var(--text-gray); margin-top: 4px; line-height: 1.3;">HR вопросы: отпуска, ДМС, обучение</p>
+                    </div>
+
+                    <div class="app-card" onclick="openStandardChat('techsupport')">
+                        <div class="app-icon blue">🛠️</div>
+                        <div class="app-name">Техническая поддержка</div>
+                        <p style="font-size: 0.75em; color: var(--text-gray); margin-top: 4px; line-height: 1.3;">Поддержка внутрикорпоративных систем</p>
+                    </div>
+
+                    <div class="app-card" onclick="showNotification('Запуск: Анализ данных')">
+                        <div class="app-icon purple">📊</div>
+                        <div class="app-name">Анализ табличных данных</div>
+                        <p style="font-size: 0.75em; color: var(--text-gray); margin-top: 4px; line-height: 1.3;">Excel, CSV, графики и аналитика</p>
+                    </div>
+
+                    <div class="app-card" onclick="showNotification('Запуск: CoPilot')">
+                        <div class="app-icon orange">✈️</div>
+                        <div class="app-name">CoPilot</div>
+                        <p style="font-size: 0.75em; color: var(--text-gray); margin-top: 4px; line-height: 1.3;">Помощник для программистов</p>
+                    </div>
+
+                    <div class="app-card" onclick="showNotification('Запуск: Data Навигатор')">
+                        <div class="app-icon blue">🧭</div>
+                        <div class="app-name">Data Навигатор</div>
+                        <p style="font-size: 0.75em; color: var(--text-gray); margin-top: 4px; line-height: 1.3;">Поиск по базам данных</p>
+                    </div>
+
+                    <div class="app-card" onclick="showNotification('Запуск: Поиск по СПОК')">
+                        <div class="app-icon green">🔍</div>
+                        <div class="app-name">Поиск по СПОК</div>
+                        <p style="font-size: 0.75em; color: var(--text-gray); margin-top: 4px; line-height: 1.3;">Система правил и организационных карт</p>
+                    </div>
+
+                    <div class="app-card" onclick="showNotification('Запуск: HR Помощник')">
+                        <div class="app-icon gradient">👥</div>
+                        <div class="app-name">HR Помощник</div>
+                        <p style="font-size: 0.75em; color: var(--text-gray); margin-top: 4px; line-height: 1.3;">Кадровые документы и онбординг</p>
+                    </div>
+
+                    <div class="app-card" onclick="showNotification('Запуск: Маркетинг AI')">
+                        <div class="app-icon orange">📢</div>
+                        <div class="app-name">Маркетинг AI</div>
+                        <p style="font-size: 0.75em; color: var(--text-gray); margin-top: 4px; line-height: 1.3;">Создание контента и анализ кампаний</p>
+                    </div>
+
+                    <div class="app-card" onclick="showNotification('Запуск: Финансовый аналитик')">
+                        <div class="app-icon green">💰</div>
+                        <div class="app-name">Финансовый аналитик</div>
+                        <p style="font-size: 0.75em; color: var(--text-gray); margin-top: 4px; line-height: 1.3;">Проверка бюджетов и отчетов</p>
+                    </div>
+
+                    <div class="app-card" onclick="showNotification('Запуск: Презентатор')">
+                        <div class="app-icon gradient">🎨</div>
+                        <div class="app-name">Презентатор</div>
+                        <p style="font-size: 0.75em; color: var(--text-gray); margin-top: 4px; line-height: 1.3;">Презентации по корпоративным шаблонам</p>
+                    </div>
+
+                    <div class="app-card" onclick="showNotification('Запуск: Документовед')">
+                        <div class="app-icon purple">📝</div>
+                        <div class="app-name">Документовед</div>
+                        <p style="font-size: 0.75em; color: var(--text-gray); margin-top: 4px; line-height: 1.3;">Создание и форматирование документов</p>
+                    </div>
+
+                    <div class="app-card" onclick="showNotification('Запуск: Email Ассистент')">
+                        <div class="app-icon blue">📧</div>
+                        <div class="app-name">Email Ассистент</div>
+                        <p style="font-size: 0.75em; color: var(--text-gray); margin-top: 4px; line-height: 1.3;">Автоматизация работы с почтой</p>
+                    </div>
+
+                    <div class="app-card" onclick="showNotification('Запуск: Переводчик Pro')">
+                        <div class="app-icon gradient">🌐</div>
+                        <div class="app-name">Переводчик Pro</div>
+                        <p style="font-size: 0.75em; color: var(--text-gray); margin-top: 4px; line-height: 1.3;">Профессиональный перевод документов</p>
+                    </div>
+
+                    <div class="app-card" onclick="showNotification('Запуск: CRM Помощник')">
+                        <div class="app-icon orange">📱</div>
+                        <div class="app-name">CRM Помощник</div>
+                        <p style="font-size: 0.75em; color: var(--text-gray); margin-top: 4px; line-height: 1.3;">Работа с клиентской базой</p>
+                    </div>
+
+                    <div class="app-card" onclick="showNotification('Запуск: Юрист AI')">
+                        <div class="app-icon green">⚖️</div>
+                        <div class="app-name">Юрист AI</div>
+                        <p style="font-size: 0.75em; color: var(--text-gray); margin-top: 4px; line-height: 1.3;">Проверка договоров и консультации</p>
+                    </div>
+
+                    <div class="app-card" onclick="showNotification('Запуск: Планировщик')">
+                        <div class="app-icon purple">📅</div>
+                        <div class="app-name">Планировщик задач</div>
+                        <p style="font-size: 0.75em; color: var(--text-gray); margin-top: 4px; line-height: 1.3;">Управление проектами и Jira</p>
+                    </div>
+
+                    <div class="app-card" onclick="showNotification('Запуск: Обучатор')">
+                        <div class="app-icon blue">🎓</div>
+                        <div class="app-name">Обучатор</div>
+                        <p style="font-size: 0.75em; color: var(--text-gray); margin-top: 4px; line-height: 1.3;">Создание обучающих материалов</p>
+                    </div>
+
+                    <div class="app-card" onclick="showNotification('Запуск: Контент-мейкер')">
+                        <div class="app-icon gradient">✍️</div>
+                        <div class="app-name">Контент-мейкер</div>
+                        <p style="font-size: 0.75em; color: var(--text-gray); margin-top: 4px; line-height: 1.3;">Генерация текстового контента</p>
+                    </div>
+
+                    <div class="app-card" onclick="showNotification('Запуск: SEO Оптимизатор')">
+                        <div class="app-icon orange">🔎</div>
+                        <div class="app-name">SEO Оптимизатор</div>
+                        <p style="font-size: 0.75em; color: var(--text-gray); margin-top: 4px; line-height: 1.3;">Оптимизация для поисковых систем</p>
+                    </div>
+
+                    <div class="app-card" onclick="showNotification('Запуск: Бизнес-аналитик')">
+                        <div class="app-icon green">📈</div>
+                        <div class="app-name">Бизнес-аналитик</div>
+                        <p style="font-size: 0.75em; color: var(--text-gray); margin-top: 4px; line-height: 1.3;">Анализ бизнес-процессов</p>
+                    </div>
+
+                    <div class="app-card" onclick="showNotification('Запуск: Рекрутер AI')">
+                        <div class="app-icon purple">🎯</div>
+                        <div class="app-name">Рекрутер AI</div>
+                        <p style="font-size: 0.75em; color: var(--text-gray); margin-top: 4px; line-height: 1.3;">Подбор и оценка кандидатов</p>
+                    </div>
+
+                    <div class="app-card" onclick="showNotification('Запуск: Автоматизатор')">
+                        <div class="app-icon blue">⚡</div>
+                        <div class="app-name">Автоматизатор</div>
+                        <p style="font-size: 0.75em; color: var(--text-gray); margin-top: 4px; line-height: 1.3;">Создание автоматических сценариев</p>
+                    </div>
+
+                    <div class="app-card" onclick="showNotification('Запуск: Ассистент продаж')">
+                        <div class="app-icon gradient">💼</div>
+                        <div class="app-name">Ассистент продаж</div>
+                        <p style="font-size: 0.75em; color: var(--text-gray); margin-top: 4px; line-height: 1.3;">Поддержка менеджеров по продажам</p>
+                    </div>
+
+                    <div class="app-card" onclick="showNotification('Запуск: Помощник закупок')">
+                        <div class="app-icon orange">🛒</div>
+                        <div class="app-name">Помощник закупок</div>
+                        <p style="font-size: 0.75em; color: var(--text-gray); margin-top: 4px; line-height: 1.3;">Анализ предложений поставщиков</p>
+                    </div>
+
+                    <div class="app-card" onclick="showNotification('Запуск: Аудитор')">
+                        <div class="app-icon green">🔍</div>
+                        <div class="app-name">Аудитор</div>
+                        <p style="font-size: 0.75em; color: var(--text-gray); margin-top: 4px; line-height: 1.3;">Проверка на соответствие стандартам</p>
+                    </div>
+
+                    <div class="app-card" onclick="showNotification('Запуск: Архитектор решений')">
+                        <div class="app-icon purple">🏗️</div>
+                        <div class="app-name">Архитектор решений</div>
+                        <p style="font-size: 0.75em; color: var(--text-gray); margin-top: 4px; line-height: 1.3;">Проектирование IT-решений</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Cases Section (Hidden by default) -->
+            <section id="cases" class="content-section" style="display: none;">
+                <h1 class="page-title">Успешные кейсы использования</h1>
+                <p style="margin-top: 20px; color: var(--text-gray);">Здесь будут представлены успешные кейсы использования GenAssistant в МегаФоне</p>
+            </section>
+
+            <!-- Settings Section (Hidden by default) -->
+            <section id="settings" class="content-section" style="display: none;">
+                <h1 class="page-title">⚙️ Настройки</h1>
+
+                <div style="max-width: 800px; margin: 30px auto;">
+                    <!-- API Key Section -->
+                    <div style="background: white; border-radius: 12px; padding: 30px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 20px;">
+                        <h2 style="font-size: 1.3em; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+                            🔑 API Ключ Claude
+                        </h2>
+                        <p style="color: var(--text-gray); margin-bottom: 25px; font-size: 0.95em;">
+                            Для работы чата требуется API ключ от Anthropic Claude
+                        </p>
+
+                        <!-- Status Indicator -->
+                        <div id="api-key-status" style="padding: 12px 16px; border-radius: 8px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; background: #f0f0f0;">
+                            <span id="status-icon">⏳</span>
+                            <span id="status-text" style="font-size: 0.9em;">Проверка ключа...</span>
+                        </div>
+
+                        <!-- API Key Input -->
+                        <div class="form-group" style="margin-bottom: 20px;">
+                            <label class="form-label" style="display: block; margin-bottom: 8px; font-weight: 500;">
+                                API Ключ
+                            </label>
+                            <div style="position: relative;">
+                                <input
+                                    type="password"
+                                    id="api-key-input"
+                                    class="input-field"
+                                    placeholder="sk-ant-api03-..."
+                                    style="width: 100%; padding: 12px 100px 12px 12px; font-family: monospace; font-size: 0.9em;"
+                                />
+                                <button
+                                    id="toggle-key-visibility"
+                                    onclick="toggleApiKeyVisibility()"
+                                    style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; padding: 8px; font-size: 1.2em;"
+                                    title="Показать/скрыть ключ"
+                                >👁️</button>
+                            </div>
+                            <p style="font-size: 0.85em; color: var(--text-gray); margin-top: 8px;">
+                                Получить API ключ можно в <a href="https://console.anthropic.com/settings/keys" target="_blank" style="color: var(--megafon-green);">Anthropic Console</a>
+                            </p>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div style="display: flex; gap: 12px;">
+                            <button
+                                onclick="testApiKey()"
+                                class="button-secondary"
+                                style="flex: 1; padding: 12px; border-radius: 8px; border: 2px solid var(--border-gray); background: white; cursor: pointer; font-weight: 500; transition: all 0.2s;"
+                            >
+                                🧪 Проверить ключ
+                            </button>
+                            <button
+                                onclick="saveApiKey()"
+                                class="button-primary"
+                                style="flex: 1; padding: 12px; border-radius: 8px; border: none; background: var(--megafon-green); color: white; cursor: pointer; font-weight: 500; transition: all 0.2s;"
+                            >
+                                💾 Сохранить
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Info Section -->
+                    <div style="background: #f8f9ff; border-radius: 12px; padding: 20px; border-left: 4px solid var(--megafon-purple);">
+                        <h3 style="font-size: 1.1em; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+                            ℹ️ Информация
+                        </h3>
+                        <ul style="color: var(--text-gray); font-size: 0.9em; line-height: 1.6; padding-left: 20px;">
+                            <li>API ключ хранится локально в защищенном хранилище</li>
+                            <li>Ключ используется только для взаимодействия с Claude API</li>
+                            <li>Убедитесь, что у вас есть активная подписка на Anthropic API</li>
+                            <li>Модель: Claude Sonnet 4 (claude-sonnet-4-20250514)</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Self-Service AI Section -->
+            <section id="selfservice" class="content-section" style="display: none;">
+                <h1 class="page-title">Self-Service AI - Конструктор приложений</h1>
+                <p style="margin-top: 10px; color: var(--text-gray); margin-bottom: 30px;">Создавайте своих AI-агентов без программирования</p>
+
+                <div class="wizard-container">
+                    <!-- Progress Steps -->
+                    <div class="wizard-steps">
+                        <div class="step-item active" data-step="1">
+                            <div class="step-circle">1</div>
+                            <div class="step-label">Название</div>
+                        </div>
+                        <div class="step-line"></div>
+                        <div class="step-item" data-step="2">
+                            <div class="step-circle">2</div>
+                            <div class="step-label">Аватарка</div>
+                        </div>
+                        <div class="step-line"></div>
+                        <div class="step-item" data-step="3">
+                            <div class="step-circle">3</div>
+                            <div class="step-label">Промпт</div>
+                        </div>
+                        <div class="step-line"></div>
+                        <div class="step-item" data-step="4">
+                            <div class="step-circle">4</div>
+                            <div class="step-label">Файлы</div>
+                        </div>
+                        <div class="step-line"></div>
+                        <div class="step-item" data-step="5">
+                            <div class="step-circle">5</div>
+                            <div class="step-label">Публикация</div>
+                        </div>
+                    </div>
+
+                    <!-- Wizard Content -->
+                    <div class="wizard-content">
+                        <!-- Step 1: Name -->
+                        <div class="wizard-step active" data-step="1">
+                            <div class="step-content">
+                                <h2 class="step-title">Название приложения</h2>
+                                <p class="step-description">Придумайте название для вашего AI-помощника</p>
+                                
+                                <div class="form-group" style="max-width: 500px; margin: 30px auto;">
+                                    <label class="form-label">Название</label>
+                                    <input type="text" id="appName" class="form-input" placeholder="Например: Финансовый аналитик" style="font-size: 1.1em; padding: 14px;">
+                                </div>
+
+                                <div class="form-group" style="max-width: 500px; margin: 30px auto;">
+                                    <label class="form-label">Краткое описание</label>
+                                    <textarea id="appDescription" class="form-textarea" placeholder="Опишите, что делает ваше приложение..." style="min-height: 100px;"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 2: Avatar -->
+                        <div class="wizard-step" data-step="2">
+                            <div class="step-content">
+                                <h2 class="step-title">Выберите аватарку</h2>
+                                <p class="step-description">Выберите иконку для вашего приложения</p>
+                                
+                                <div class="avatar-grid">
+                                    <div class="avatar-option" data-avatar="💼" onclick="selectAvatar('💼')">💼</div>
+                                    <div class="avatar-option" data-avatar="💰" onclick="selectAvatar('💰')">💰</div>
+                                    <div class="avatar-option" data-avatar="📊" onclick="selectAvatar('📊')">📊</div>
+                                    <div class="avatar-option" data-avatar="📈" onclick="selectAvatar('📈')">📈</div>
+                                    <div class="avatar-option" data-avatar="🎯" onclick="selectAvatar('🎯')">🎯</div>
+                                    <div class="avatar-option" data-avatar="⚡" onclick="selectAvatar('⚡')">⚡</div>
+                                    <div class="avatar-option" data-avatar="🚀" onclick="selectAvatar('🚀')">🚀</div>
+                                    <div class="avatar-option" data-avatar="💡" onclick="selectAvatar('💡')">💡</div>
+                                    <div class="avatar-option" data-avatar="🎨" onclick="selectAvatar('🎨')">🎨</div>
+                                    <div class="avatar-option" data-avatar="📝" onclick="selectAvatar('📝')">📝</div>
+                                    <div class="avatar-option" data-avatar="📧" onclick="selectAvatar('📧')">📧</div>
+                                    <div class="avatar-option" data-avatar="📱" onclick="selectAvatar('📱')">📱</div>
+                                    <div class="avatar-option" data-avatar="🛠️" onclick="selectAvatar('🛠️')">🛠️</div>
+                                    <div class="avatar-option" data-avatar="⚙️" onclick="selectAvatar('⚙️')">⚙️</div>
+                                    <div class="avatar-option" data-avatar="🔍" onclick="selectAvatar('🔍')">🔍</div>
+                                    <div class="avatar-option" data-avatar="🌐" onclick="selectAvatar('🌐')">🌐</div>
+                                    <div class="avatar-option" data-avatar="👥" onclick="selectAvatar('👥')">👥</div>
+                                    <div class="avatar-option" data-avatar="🤝" onclick="selectAvatar('🤝')">🤝</div>
+                                    <div class="avatar-option" data-avatar="⚖️" onclick="selectAvatar('⚖️')">⚖️</div>
+                                    <div class="avatar-option" data-avatar="🎓" onclick="selectAvatar('🎓')">🎓</div>
+                                    <div class="avatar-option" data-avatar="📚" onclick="selectAvatar('📚')">📚</div>
+                                    <div class="avatar-option" data-avatar="✍️" onclick="selectAvatar('✍️')">✍️</div>
+                                    <div class="avatar-option" data-avatar="🎬" onclick="selectAvatar('🎬')">🎬</div>
+                                    <div class="avatar-option" data-avatar="📢" onclick="selectAvatar('📢')">📢</div>
+                                </div>
+
+                                <div class="avatar-preview">
+                                    <div class="preview-label">Предпросмотр:</div>
+                                    <div class="preview-card">
+                                        <div class="preview-icon" id="previewAvatar">💼</div>
+                                        <div class="preview-name" id="previewName">Название приложения</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 3: Prompt -->
+                        <div class="wizard-step" data-step="3">
+                            <div class="step-content">
+                                <h2 class="step-title">Системный промпт</h2>
+                                <p class="step-description">Опишите роль, задачи и стиль работы вашего агента</p>
+                                
+                                <div class="prompt-templates">
+                                    <div class="template-label">Шаблоны промптов:</div>
+                                    <div class="template-buttons">
+                                        <button class="template-btn" onclick="applyTemplate('finance')">💰 Финансы</button>
+                                        <button class="template-btn" onclick="applyTemplate('hr')">👥 HR</button>
+                                        <button class="template-btn" onclick="applyTemplate('marketing')">📢 Маркетинг</button>
+                                        <button class="template-btn" onclick="applyTemplate('tech')">🛠️ Техподдержка</button>
+                                        <button class="template-btn" onclick="applyTemplate('sales')">💼 Продажи</button>
+                                    </div>
+                                </div>
+
+                                <div class="form-group" style="max-width: 800px; margin: 30px auto;">
+                                    <label class="form-label">Инструкции для агента</label>
+                                    <textarea id="appPrompt" class="form-textarea" placeholder="Например:
+
+Ты - финансовый аналитик МегаФона. 
+
+Твои задачи:
+- Анализировать финансовые отчеты
+- Проверять соответствие бюджету
+- Выявлять аномалии в расходах
+- Давать рекомендации по оптимизации
+
+Стиль работы:
+- Всегда указывай конкретные суммы и статьи бюджета
+- Будь внимателен к деталям
+- Используй корпоративную терминологию МегаФона" style="min-height: 300px; font-family: monospace; font-size: 0.9em;"></textarea>
+                                    <div class="prompt-hint">💡 Чем детальнее промпт, тем точнее будет работать агент</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 4: Files -->
+                        <div class="wizard-step" data-step="4">
+                            <div class="step-content">
+                                <h2 class="step-title">Загрузите файлы</h2>
+                                <p class="step-description">Добавьте документы, которые агент будет использовать в работе</p>
+                                
+                                <div class="upload-area" id="uploadArea">
+                                    <div class="upload-icon">📁</div>
+                                    <div class="upload-text">Перетащите файлы сюда или нажмите для выбора</div>
+                                    <div class="upload-hint">Поддерживаются: PDF, DOCX, XLSX, TXT, CSV (макс. 10 МБ каждый)</div>
+                                    <input type="file" id="fileInput" multiple style="display: none;" accept=".pdf,.docx,.xlsx,.txt,.csv">
+                                </div>
+
+                                <div class="files-list" id="filesList"></div>
+
+                                <div class="skip-hint">
+                                    <p>💡 Вы можете пропустить этот шаг и добавить файлы позже</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 5: Publication -->
+                        <div class="wizard-step" data-step="5">
+                            <div class="step-content">
+                                <h2 class="step-title">Публикация приложения</h2>
+                                <p class="step-description">Выберите, кто сможет использовать ваше приложение</p>
+                                
+                                <div class="publication-options">
+                                    <div class="pub-option" data-type="private" onclick="selectPublication('private')">
+                                        <div class="pub-icon">🔒</div>
+                                        <div class="pub-title">Только для меня</div>
+                                        <div class="pub-description">Приложение будет доступно только вам</div>
+                                        <div class="pub-radio"></div>
+                                    </div>
+
+                                    <div class="pub-option" data-type="team" onclick="selectPublication('team')">
+                                        <div class="pub-icon">👥</div>
+                                        <div class="pub-title">Для группы коллег</div>
+                                        <div class="pub-description">Поделитесь с вашей командой или отделом</div>
+                                        <div class="pub-radio"></div>
+                                    </div>
+
+                                    <div class="pub-option" data-type="company" onclick="selectPublication('company')">
+                                        <div class="pub-icon">🏢</div>
+                                        <div class="pub-title">На всю компанию</div>
+                                        <div class="pub-description">Все сотрудники МегаФона смогут использовать приложение</div>
+                                        <div class="pub-radio"></div>
+                                    </div>
+                                </div>
+
+                                <div class="team-selection" id="teamSelection" style="display: none;">
+                                    <div class="form-group">
+                                        <label class="form-label">Выберите группу коллег</label>
+                                        <select class="form-select">
+                                            <option>Мой отдел</option>
+                                            <option>Финансовая дирекция</option>
+                                            <option>IT-департамент</option>
+                                            <option>HR-служба</option>
+                                            <option>Маркетинг</option>
+                                            <option>Продажи</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="summary-box">
+                                    <div class="summary-title">Сводка по приложению:</div>
+                                    <div class="summary-item">
+                                        <span class="summary-label">Название:</span>
+                                        <span class="summary-value" id="summaryName">—</span>
+                                    </div>
+                                    <div class="summary-item">
+                                        <span class="summary-label">Иконка:</span>
+                                        <span class="summary-value" id="summaryAvatar">—</span>
+                                    </div>
+                                    <div class="summary-item">
+                                        <span class="summary-label">Промпт:</span>
+                                        <span class="summary-value" id="summaryPrompt">—</span>
+                                    </div>
+                                    <div class="summary-item">
+                                        <span class="summary-label">Файлы:</span>
+                                        <span class="summary-value" id="summaryFiles">0 файлов</span>
+                                    </div>
+                                    <div class="summary-item">
+                                        <span class="summary-label">Доступ:</span>
+                                        <span class="summary-value" id="summaryAccess">Не выбрано</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Navigation Buttons -->
+                    <div class="wizard-navigation">
+                        <button class="btn-secondary" id="prevBtn" onclick="prevStep()" style="display: none;">← Назад</button>
+                        <div style="flex: 1;"></div>
+                        <button class="btn-primary" id="nextBtn" onclick="nextStep()">Далее →</button>
+                        <button class="btn-primary" id="finishBtn" onclick="finishWizard()" style="display: none;">✓ Опубликовать</button>
+                    </div>
+                </div>
+
+                <!-- My Apps List -->
+                <div class="my-apps-section" style="margin-top: 60px;">
+                    <h2 style="font-size: 1.3em; margin-bottom: 20px;">Мои созданные приложения</h2>
+                    <div class="apps-grid" id="myAppsList"></div>
+                </div>
+            </section>
+
+            <!-- Chat Interface Modal -->
+            <div class="chat-modal" id="chatModal">
+                <div class="chat-container">
+                    <div class="chat-header">
+                        <div class="chat-app-info">
+                            <div class="chat-app-avatar" id="chatAppAvatar">💼</div>
+                            <div>
+                                <div class="chat-app-name" id="chatAppName">Приложение</div>
+                                <div class="chat-app-status">Онлайн</div>
+                            </div>
+                        </div>
+                        <button class="close-chat-btn" onclick="closeChat()">✕</button>
+                    </div>
+                    
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="welcome-message">
+                            <div class="welcome-icon" id="welcomeIcon">👋</div>
+                            <h3 id="welcomeTitle">Добро пожаловать!</h3>
+                            <p id="welcomeText">Чем могу помочь?</p>
+                        </div>
+                    </div>
+                    
+                    <div class="chat-input-area">
+                        <textarea class="chat-input" id="chatInput" placeholder="Введите сообщение..." rows="1"></textarea>
+                        <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+                            <span class="send-icon">➤</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cowork Section -->
+            <section id="cowork" class="content-section" style="display: none;">
+                <div class="cowork-simple-layout">
+                    <div class="cowork-chat-simple">
+                        <!-- Messages -->
+                        <div class="cowork-messages-simple" id="coworkMessagesSimple">
+                            <div class="welcome-msg">
+                                <div class="welcome-icon-wrap">
+                                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                                    </svg>
+                                </div>
+                                <h3>Cowork Agent</h3>
+                                <p>AI-ассистент с доступом к Claude. Задайте вопрос или опишите задачу.</p>
+                                <div class="welcome-hints">
+                                    <span class="welcome-hint" onclick="document.getElementById('coworkTextareaSimple').value='Помоги составить отчет по продажам за квартал'; document.getElementById('coworkTextareaSimple').focus();">Составить отчет</span>
+                                    <span class="welcome-hint" onclick="document.getElementById('coworkTextareaSimple').value='Проанализируй данные и найди ключевые тренды'; document.getElementById('coworkTextareaSimple').focus();">Анализ данных</span>
+                                    <span class="welcome-hint" onclick="document.getElementById('coworkTextareaSimple').value='Напиши текст презентации для руководства'; document.getElementById('coworkTextareaSimple').focus();">Текст презентации</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Attached Files Preview -->
+                        <div class="attached-preview" id="attachedPreview" style="display: none;"></div>
+
+                        <!-- Input Area -->
+                        <div class="cowork-input-simple">
+                            <button class="cowork-attach-btn" onclick="document.getElementById('coworkFileInputSimple').click()" title="Прикрепить файлы">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+                                </svg>
+                                <span id="fileCountBadge" class="file-count-badge" style="display: none;"></span>
+                            </button>
+                            <textarea
+                                id="coworkTextareaSimple"
+                                placeholder="Напишите сообщение..."
+                                rows="1"
+                            ></textarea>
+                            <button class="cowork-send-btn" onclick="sendCoworkSimple()" id="coworkSendBtn">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="22" y1="2" x2="11" y2="13"/>
+                                    <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                                </svg>
+                            </button>
+                            <input type="file" id="coworkFileInputSimple" multiple style="display: none;">
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <div class="notification" id="notification"></div>
+
+    <script>
+        // === API KEY CONFIGURATION ===
+        let ANTHROPIC_API_KEY = null;
+
+        // CORS Proxy URL (необходим для работы в браузере)
+        const CORS_PROXY = 'https://corsproxy.io/?';
+
+        // Универсальное хранилище (работает в браузере и Electron)
+        const storage = {
+            get: (key) => {
+                try {
+                    return localStorage.getItem(key);
+                } catch (e) {
+                    console.warn('localStorage недоступен:', e);
+                    return null;
+                }
+            },
+            set: (key, value) => {
+                try {
+                    localStorage.setItem(key, value);
+                    return true;
+                } catch (e) {
+                    console.warn('localStorage недоступен:', e);
+                    return false;
+                }
+            },
+            remove: (key) => {
+                try {
+                    localStorage.removeItem(key);
+                    return true;
+                } catch (e) {
+                    return false;
+                }
+            }
+        };
+
+        async function initializeApp() {
+            try {
+                console.log('🔍 Инициализация приложения...');
+
+                // Загружаем ключ из localStorage
+                const savedKey = storage.get('anthropic_api_key');
+                if (savedKey) {
+                    ANTHROPIC_API_KEY = savedKey;
+                    console.log('✅ API ключ загружен из localStorage');
+                    console.log('🔑 Ключ начинается с:', ANTHROPIC_API_KEY.substring(0, 20) + '...');
+                } else {
+                    console.log('ℹ️ API ключ не найден. Введите его в Настройках.');
+                }
+
+                return true;
+            } catch (error) {
+                console.error('❌ Ошибка инициализации:', error);
+                return false;
+            }
+        }
+
+        // Запустить инициализацию при загрузке
+        window.addEventListener('DOMContentLoaded', async () => {
+            await initializeApp();
+            // Обновить статус ключа в настройках
+            loadApiKeySettings();
+        });
+
+        // === API KEY MANAGEMENT FUNCTIONS ===
+
+        // Toggle API key visibility
+        function toggleApiKeyVisibility() {
+            const input = document.getElementById('api-key-input');
+            const button = document.getElementById('toggle-key-visibility');
+
+            if (input.type === 'password') {
+                input.type = 'text';
+                button.textContent = '🙈';
+                button.title = 'Скрыть ключ';
+            } else {
+                input.type = 'password';
+                button.textContent = '👁️';
+                button.title = 'Показать ключ';
+            }
+        }
+
+        // Update API key status display
+        function updateApiKeyStatus(status, message) {
+            const statusDiv = document.getElementById('api-key-status');
+            const statusIcon = document.getElementById('status-icon');
+            const statusText = document.getElementById('status-text');
+
+            if (!statusDiv || !statusIcon || !statusText) return;
+
+            statusText.textContent = message;
+
+            if (status === 'success') {
+                statusDiv.style.background = '#e8f5e9';
+                statusDiv.style.borderLeft = '4px solid #4caf50';
+                statusIcon.textContent = '✅';
+            } else if (status === 'error') {
+                statusDiv.style.background = '#ffebee';
+                statusDiv.style.borderLeft = '4px solid #f44336';
+                statusIcon.textContent = '❌';
+            } else if (status === 'warning') {
+                statusDiv.style.background = '#fff3e0';
+                statusDiv.style.borderLeft = '4px solid #ff9800';
+                statusIcon.textContent = '⚠️';
+            } else {
+                statusDiv.style.background = '#f0f0f0';
+                statusDiv.style.borderLeft = 'none';
+                statusIcon.textContent = '⏳';
+            }
+        }
+
+        // Load current API key into settings form
+        function loadApiKeySettings() {
+            const input = document.getElementById('api-key-input');
+            if (!input) return;
+
+            try {
+                const apiKey = storage.get('anthropic_api_key');
+                if (apiKey) {
+                    input.value = apiKey;
+                    ANTHROPIC_API_KEY = apiKey;
+                    updateApiKeyStatus('success', `API \u043a\u043b\u044e\u0447 \u0437\u0430\u0433\u0440\u0443\u0436\u0435\u043d (${apiKey.substring(0, 20)}...)`);
+                } else {
+                    updateApiKeyStatus('warning', 'API \u043a\u043b\u044e\u0447 \u043d\u0435 \u043d\u0430\u0439\u0434\u0435\u043d. \u0412\u0432\u0435\u0434\u0438\u0442\u0435 \u043a\u043b\u044e\u0447 \u0438 \u043d\u0430\u0436\u043c\u0438\u0442\u0435 "\u0421\u043e\u0445\u0440\u0430\u043d\u0438\u0442\u044c".');
+                }
+            } catch (err) {
+                console.error('Error loading API key:', err);
+                updateApiKeyStatus('error', '\u041e\u0448\u0438\u0431\u043a\u0430 \u0437\u0430\u0433\u0440\u0443\u0437\u043a\u0438 \u043a\u043b\u044e\u0447\u0430: ' + err.message);
+            }
+        }
+
+        // Test API key by making a simple request
+        async function testApiKey() {
+            const input = document.getElementById('api-key-input');
+            const apiKey = input.value.trim();
+
+            if (!apiKey) {
+                updateApiKeyStatus('warning', '\u0412\u0432\u0435\u0434\u0438\u0442\u0435 API \u043a\u043b\u044e\u0447 \u0434\u043b\u044f \u043f\u0440\u043e\u0432\u0435\u0440\u043a\u0438');
+                return;
+            }
+
+            if (!apiKey.startsWith('sk-ant-')) {
+                updateApiKeyStatus('error', '\u041d\u0435\u0432\u0435\u0440\u043d\u044b\u0439 \u0444\u043e\u0440\u043c\u0430\u0442 \u043a\u043b\u044e\u0447\u0430. \u041a\u043b\u044e\u0447 \u0434\u043e\u043b\u0436\u0435\u043d \u043d\u0430\u0447\u0438\u043d\u0430\u0442\u044c\u0441\u044f \u0441 sk-ant-');
+                return;
+            }
+
+            updateApiKeyStatus('loading', '\u041f\u0440\u043e\u0432\u0435\u0440\u043a\u0430 \u043a\u043b\u044e\u0447\u0430...');
+
+            const apiUrl = 'https://api.anthropic.com/v1/messages';
+
+            try {
+                const response = await fetch(CORS_PROXY + encodeURIComponent(apiUrl), {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'anthropic-version': '2023-06-01',
+                        'x-api-key': apiKey
+                    },
+                    body: JSON.stringify({
+                        model: 'claude-sonnet-4-20250514',
+                        max_tokens: 10,
+                        messages: [{
+                            role: 'user',
+                            content: 'Hi'
+                        }]
+                    })
+                });
+
+                if (response.ok) {
+                    updateApiKeyStatus('success', 'API \u043a\u043b\u044e\u0447 \u0440\u0430\u0431\u043e\u0442\u0430\u0435\u0442! \u041c\u043e\u0436\u0435\u0442\u0435 \u0441\u043e\u0445\u0440\u0430\u043d\u0438\u0442\u044c \u0435\u0433\u043e.');
+                } else {
+                    const errorData = await response.json().catch(() => ({}));
+                    const errorMsg = errorData.error?.message || `HTTP ${response.status}`;
+                    console.error('API test failed:', errorData);
+                    updateApiKeyStatus('error', `\u041e\u0448\u0438\u0431\u043a\u0430: ${errorMsg}`);
+                }
+            } catch (err) {
+                console.error('Test API key error:', err);
+                updateApiKeyStatus('error', `❌ Ошибка сети: ${err.message}`);
+            }
+        }
+
+        // Save API key
+        function saveApiKey() {
+            const input = document.getElementById('api-key-input');
+            const apiKey = input.value.trim();
+
+            if (!apiKey) {
+                updateApiKeyStatus('warning', '\u0412\u0432\u0435\u0434\u0438\u0442\u0435 API \u043a\u043b\u044e\u0447');
+                return;
+            }
+
+            if (!apiKey.startsWith('sk-ant-')) {
+                updateApiKeyStatus('error', '\u041d\u0435\u0432\u0435\u0440\u043d\u044b\u0439 \u0444\u043e\u0440\u043c\u0430\u0442 \u043a\u043b\u044e\u0447\u0430. \u041a\u043b\u044e\u0447 \u0434\u043e\u043b\u0436\u0435\u043d \u043d\u0430\u0447\u0438\u043d\u0430\u0442\u044c\u0441\u044f \u0441 sk-ant-');
+                return;
+            }
+
+            try {
+                storage.set('anthropic_api_key', apiKey);
+                ANTHROPIC_API_KEY = apiKey;
+                updateApiKeyStatus('success', 'API \u043a\u043b\u044e\u0447 \u0443\u0441\u043f\u0435\u0448\u043d\u043e \u0441\u043e\u0445\u0440\u0430\u043d\u0435\u043d!');
+                showNotification('API \u043a\u043b\u044e\u0447 \u0441\u043e\u0445\u0440\u0430\u043d\u0435\u043d!');
+            } catch (err) {
+                console.error('Error saving API key:', err);
+                updateApiKeyStatus('error', '\u041e\u0448\u0438\u0431\u043a\u0430 \u0441\u043e\u0445\u0440\u0430\u043d\u0435\u043d\u0438\u044f: ' + err.message);
+            }
+        }
+
+        // === END API KEY CONFIGURATION ===
+
+        // Wizard State
+        let currentStep = 1;
+        let wizardData = {
+            name: '',
+            description: '',
+            avatar: '💼',
+            prompt: '',
+            files: [],
+            publication: 'private'
+        };
+
+        const myApps = [];
+
+        // Prompt Templates
+        const promptTemplates = {
+            finance: `Ты - финансовый аналитик МегаФона.
+
+Твои задачи:
+- Анализировать финансовые отчеты и бюджеты
+- Проверять соответствие расходов утвержденному бюджету
+- Выявлять аномалии и нецелевые траты
+- Давать рекомендации по оптимизации расходов
+
+Стиль работы:
+- Всегда указывай конкретные суммы и статьи бюджета
+- Будь внимателен к деталям и несоответствиям
+- Используй корпоративную терминологию МегаФона
+- Предоставляй четкие и структурированные ответы`,
+
+            hr: `Ты - HR-ассистент МегаФона.
+
+Твои задачи:
+- Помогать сотрудникам с вопросами по отпускам, ДМС, обучению
+- Предоставлять информацию о корпоративных процедурах
+- Помогать в оформлении кадровых документов
+- Консультировать по программам развития
+
+Стиль работы:
+- Будь дружелюбным и понимающим
+- Давай точные ссылки на регламенты и документы
+- Учитывай корпоративную культуру МегаФона`,
+
+            marketing: `Ты - маркетинговый ассистент МегаФона.
+
+Твои задачи:
+- Помогать в создании маркетингового контента
+- Анализировать эффективность кампаний
+- Генерировать креативные идеи
+- Проверять соответствие брендбуку МегаФона
+
+Стиль работы:
+- Используй фирменные цвета МегаФона (#00B956, #9B30FF)
+- Помни о tone of voice бренда
+- Предлагай измеримые KPI для кампаний`,
+
+            tech: `Ты - ассистент технической поддержки МегаФона.
+
+Твои задачи:
+- Помогать решать технические проблемы сотрудников
+- Диагностировать неисправности в корпоративных системах
+- Предоставлять пошаговые инструкции
+- Эскалировать сложные проблемы в ServiceDesk
+
+Стиль работы:
+- Задавай уточняющие вопросы для диагностики
+- Давай четкие пошаговые инструкции
+- Будь терпеливым и понятным`,
+
+            sales: `Ты - ассистент по продажам МегаФона.
+
+Твои задачи:
+- Помогать готовить коммерческие предложения
+- Анализировать воронку продаж
+- Предоставлять информацию о продуктах и тарифах
+- Помогать в работе с CRM
+
+Стиль работы:
+- Знай актуальные продукты и тарифы МегаФона
+- Фокусируйся на ценности для клиента
+- Помогай с расчетами и прогнозами`
+        };
+
+        // Wizard Navigation
+        function nextStep() {
+            if (!validateStep(currentStep)) {
+                return;
+            }
+
+            saveCurrentStep();
+            
+            if (currentStep < 5) {
+                document.querySelector(`.step-item[data-step="${currentStep}"]`).classList.add('completed');
+                document.querySelector(`.step-item[data-step="${currentStep}"]`).classList.remove('active');
+                
+                currentStep++;
+                
+                document.querySelector(`.step-item[data-step="${currentStep}"]`).classList.add('active');
+                document.querySelector(`.wizard-step[data-step="${currentStep}"]`).classList.add('active');
+                document.querySelectorAll('.wizard-step').forEach(step => {
+                    if (step.getAttribute('data-step') != currentStep) {
+                        step.classList.remove('active');
+                    }
+                });
+
+                updateButtons();
+                updateSummary();
+            }
+        }
+
+        function prevStep() {
+            if (currentStep > 1) {
+                document.querySelector(`.step-item[data-step="${currentStep}"]`).classList.remove('active');
+                document.querySelector(`.step-item[data-step="${currentStep}"]`).classList.remove('completed');
+                
+                currentStep--;
+                
+                document.querySelector(`.step-item[data-step="${currentStep}"]`).classList.add('active');
+                document.querySelector(`.step-item[data-step="${currentStep}"]`).classList.remove('completed');
+                
+                document.querySelector(`.wizard-step[data-step="${currentStep}"]`).classList.add('active');
+                document.querySelectorAll('.wizard-step').forEach(step => {
+                    if (step.getAttribute('data-step') != currentStep) {
+                        step.classList.remove('active');
+                    }
+                });
+
+                updateButtons();
+            }
+        }
+
+        function validateStep(step) {
+            switch(step) {
+                case 1:
+                    const name = document.getElementById('appName').value.trim();
+                    if (!name) {
+                        showNotification('Введите название приложения');
+                        return false;
+                    }
+                    return true;
+                case 2:
+                    return true;
+                case 3:
+                    const prompt = document.getElementById('appPrompt').value.trim();
+                    if (!prompt) {
+                        showNotification('Введите системный промпт');
+                        return false;
+                    }
+                    return true;
+                case 4:
+                    return true; // Files are optional
+                case 5:
+                    if (!wizardData.publication) {
+                        showNotification('Выберите тип публикации');
+                        return false;
+                    }
+                    return true;
+            }
+            return true;
+        }
+
+        function saveCurrentStep() {
+            switch(currentStep) {
+                case 1:
+                    wizardData.name = document.getElementById('appName').value.trim();
+                    wizardData.description = document.getElementById('appDescription').value.trim();
+                    document.getElementById('previewName').textContent = wizardData.name || 'Название приложения';
+                    break;
+                case 2:
+                    // Avatar is saved in selectAvatar function
+                    break;
+                case 3:
+                    wizardData.prompt = document.getElementById('appPrompt').value.trim();
+                    break;
+                case 4:
+                    // Files are saved in file upload handlers
+                    break;
+            }
+        }
+
+        function updateButtons() {
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const finishBtn = document.getElementById('finishBtn');
+
+            prevBtn.style.display = currentStep > 1 ? 'block' : 'none';
+            
+            if (currentStep === 5) {
+                nextBtn.style.display = 'none';
+                finishBtn.style.display = 'block';
+            } else {
+                nextBtn.style.display = 'block';
+                finishBtn.style.display = 'none';
+            }
+        }
+
+        function updateSummary() {
+            document.getElementById('summaryName').textContent = wizardData.name || '—';
+            document.getElementById('summaryAvatar').textContent = wizardData.avatar || '—';
+            document.getElementById('summaryPrompt').textContent = 
+                wizardData.prompt ? wizardData.prompt.substring(0, 100) + '...' : '—';
+            document.getElementById('summaryFiles').textContent = 
+                wizardData.files.length > 0 ? `${wizardData.files.length} файлов` : '0 файлов';
+            
+            const accessLabels = {
+                private: '🔒 Только для меня',
+                team: '👥 Для группы коллег',
+                company: '🏢 На всю компанию'
+            };
+            document.getElementById('summaryAccess').textContent = 
+                accessLabels[wizardData.publication] || 'Не выбрано';
+        }
+
+        // Avatar Selection
+        function selectAvatar(emoji) {
+            document.querySelectorAll('.avatar-option').forEach(opt => opt.classList.remove('selected'));
+            document.querySelector(`.avatar-option[data-avatar="${emoji}"]`).classList.add('selected');
+            
+            wizardData.avatar = emoji;
+            document.getElementById('previewAvatar').textContent = emoji;
+        }
+
+        // Template Application
+        function applyTemplate(type) {
+            if (promptTemplates[type]) {
+                document.getElementById('appPrompt').value = promptTemplates[type];
+                showNotification('Шаблон применен');
+            }
+        }
+
+        // File Upload
+        document.getElementById('uploadArea').addEventListener('click', function() {
+            document.getElementById('fileInput').click();
+        });
+
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const files = Array.from(e.target.files);
+            files.forEach(file => {
+                if (file.size <= 10 * 1024 * 1024) { // 10MB limit
+                    wizardData.files.push(file);
+                    addFileToList(file);
+                } else {
+                    showNotification('Файл ' + file.name + ' превышает 10 МБ');
+                }
+            });
+        });
+
+        function addFileToList(file) {
+            const filesList = document.getElementById('filesList');
+            const fileItem = document.createElement('div');
+            fileItem.className = 'file-item';
+            
+            const icon = getFileIcon(file.name);
+            const size = formatFileSize(file.size);
+            
+            fileItem.innerHTML = `
+                <div class="file-icon">${icon}</div>
+                <div class="file-info">
+                    <div class="file-name">${file.name}</div>
+                    <div class="file-size">${size}</div>
+                </div>
+                <div class="file-remove" onclick="removeFile('${file.name}')">✕</div>
+            `;
+            
+            filesList.appendChild(fileItem);
+        }
+
+        function removeFile(fileName) {
+            wizardData.files = wizardData.files.filter(f => f.name !== fileName);
+            renderFilesList();
+        }
+
+        function renderFilesList() {
+            const filesList = document.getElementById('filesList');
+            filesList.innerHTML = '';
+            wizardData.files.forEach(file => addFileToList(file));
+        }
+
+        function getFileIcon(fileName) {
+            const ext = fileName.split('.').pop().toLowerCase();
+            const icons = {
+                pdf: '📄',
+                docx: '📝',
+                xlsx: '📊',
+                txt: '📃',
+                csv: '📈'
+            };
+            return icons[ext] || '📁';
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+        }
+
+        // Publication Selection
+        function selectPublication(type) {
+            document.querySelectorAll('.pub-option').forEach(opt => opt.classList.remove('selected'));
+            document.querySelector(`.pub-option[data-type="${type}"]`).classList.add('selected');
+            
+            wizardData.publication = type;
+            
+            const teamSelection = document.getElementById('teamSelection');
+            teamSelection.style.display = type === 'team' ? 'block' : 'none';
+            
+            updateSummary();
+        }
+
+        // Finish Wizard
+        function finishWizard() {
+            if (!validateStep(5)) {
+                return;
+            }
+
+            const newApp = {
+                id: Date.now(),
+                name: wizardData.name,
+                description: wizardData.description,
+                avatar: wizardData.avatar,
+                prompt: wizardData.prompt,
+                files: wizardData.files.length,
+                publication: wizardData.publication,
+                created: new Date().toLocaleDateString('ru-RU')
+            };
+
+            myApps.push(newApp);
+            renderMyApps();
+
+            showNotification('✓ Приложение "' + wizardData.name + '" успешно создано!');
+
+            // Reset wizard
+            resetWizard();
+        }
+
+        function resetWizard() {
+            currentStep = 1;
+            wizardData = {
+                name: '',
+                description: '',
+                avatar: '💼',
+                prompt: '',
+                files: [],
+                publication: 'private'
+            };
+
+            // Reset UI
+            document.querySelectorAll('.step-item').forEach(item => {
+                item.classList.remove('active', 'completed');
+            });
+            document.querySelector('.step-item[data-step="1"]').classList.add('active');
+
+            document.querySelectorAll('.wizard-step').forEach(step => {
+                step.classList.remove('active');
+            });
+            document.querySelector('.wizard-step[data-step="1"]').classList.add('active');
+
+            // Clear form
+            document.getElementById('appName').value = '';
+            document.getElementById('appDescription').value = '';
+            document.getElementById('appPrompt').value = '';
+            document.getElementById('filesList').innerHTML = '';
+            document.querySelectorAll('.avatar-option').forEach(opt => opt.classList.remove('selected'));
+            document.querySelectorAll('.pub-option').forEach(opt => opt.classList.remove('selected'));
+
+            updateButtons();
+        }
+
+        function renderMyApps() {
+            const container = document.getElementById('myAppsList');
+            
+            if (myApps.length === 0) {
+                container.innerHTML = '<p style="color: var(--text-gray); text-align: center; padding: 40px;">Пока нет созданных приложений</p>';
+                return;
+            }
+
+            container.innerHTML = myApps.map(app => `
+                <div class="app-card" onclick="openChat(${app.id})">
+                    <div class="app-icon gradient">${app.avatar}</div>
+                    <div class="app-name">${app.name}</div>
+                    <p style="font-size: 0.75em; color: var(--text-gray); margin-top: 4px; line-height: 1.3;">${app.description || 'Пользовательское приложение'}</p>
+                    <span class="app-badge">${app.created}</span>
+                </div>
+            `).join('');
+        }
+
+        // Chat functionality
+        let currentApp = null;
+        let chatHistory = [];
+
+        // Standard built-in apps
+        const standardApps = {
+            gpt: {
+                id: 'gpt',
+                name: 'Спроси у GPT',
+                avatar: '💬',
+                description: 'Универсальный AI-помощник',
+                prompt: `Ты - универсальный AI-помощник Claude от Anthropic.
+
+Твои возможности:
+- Отвечать на любые вопросы
+- Помогать с анализом текстов и документов
+- Писать и редактировать тексты
+- Решать задачи по программированию
+- Давать объяснения сложных концепций
+- Помогать с исследованиями и поиском информации
+
+Стиль работы:
+- Будь полезным, честным и безвредным
+- Давай четкие, структурированные ответы
+- Признавай ограничения своих знаний
+- Задавай уточняющие вопросы при необходимости
+- Адаптируй стиль общения под пользователя`
+            },
+            megacolleg: {
+                id: 'megacolleg',
+                name: 'МегаКоллега',
+                avatar: '🤝',
+                description: 'HR-помощник МегаФона',
+                prompt: `Ты - МегаКоллега, HR-ассистент компании МегаФон.
+
+Твои задачи:
+- Помогать сотрудникам с вопросами по отпускам и отгулам
+- Консультировать по программе ДМС (добровольного медицинского страхования)
+- Информировать о программах обучения и развития
+- Помогать с вопросами о командировках и компенсациях
+- Предоставлять информацию о корпоративных льготах
+- Объяснять процедуры оформления кадровых документов
+
+Стиль работы:
+- Будь дружелюбным и понимающим
+- Используй корпоративную терминологию МегаФона
+- При необходимости направляй к конкретным специалистам HR
+- Помни о конфиденциальности персональных данных`
+            },
+            techsupport: {
+                id: 'techsupport',
+                name: 'Техническая поддержка',
+                avatar: '🛠️',
+                description: 'IT-поддержка МегаФона',
+                prompt: `Ты - ассистент технической поддержки МегаФона.
+
+Твои задачи:
+- Помогать решать проблемы с корпоративными системами (1С, Outlook, VPN)
+- Диагностировать технические неисправности
+- Предоставлять пошаговые инструкции по решению проблем
+- Помогать с настройкой рабочего оборудования
+- Консультировать по вопросам информационной безопасности
+- Эскалировать сложные проблемы в ServiceDesk
+
+Стиль работы:
+- Задавай уточняющие вопросы для точной диагностики
+- Давай четкие пошаговые инструкции
+- Используй простой, понятный язык
+- Будь терпеливым и внимательным
+- При необходимости создавай заявку в ServiceDesk`
+            }
+        };
+
+        function openStandardChat(appType) {
+            const app = standardApps[appType];
+            if (!app) return;
+
+            currentApp = app;
+            chatHistory = [];
+            
+            document.getElementById('chatAppAvatar').textContent = app.avatar;
+            document.getElementById('chatAppName').textContent = app.name;
+            document.getElementById('welcomeIcon').textContent = app.avatar;
+            document.getElementById('welcomeTitle').textContent = `Добро пожаловать в ${app.name}!`;
+            document.getElementById('welcomeText').textContent = app.description;
+            
+            document.getElementById('chatMessages').innerHTML = `
+                <div class="welcome-message">
+                    <div class="welcome-icon">${app.avatar}</div>
+                    <h3>Добро пожаловать в ${app.name}!</h3>
+                    <p>${app.description}</p>
+                </div>
+            `;
+            
+            document.getElementById('chatModal').classList.add('active');
+            document.getElementById('chatInput').focus();
+        }
+
+        function openChat(appId) {
+            currentApp = myApps.find(app => app.id === appId);
+            if (!currentApp) return;
+
+            chatHistory = [];
+            
+            document.getElementById('chatAppAvatar').textContent = currentApp.avatar;
+            document.getElementById('chatAppName').textContent = currentApp.name;
+            document.getElementById('welcomeIcon').textContent = currentApp.avatar;
+            document.getElementById('welcomeTitle').textContent = `Добро пожаловать в ${currentApp.name}!`;
+            document.getElementById('welcomeText').textContent = currentApp.description || 'Чем могу помочь?';
+            
+            document.getElementById('chatMessages').innerHTML = `
+                <div class="welcome-message">
+                    <div class="welcome-icon">${currentApp.avatar}</div>
+                    <h3>Добро пожаловать в ${currentApp.name}!</h3>
+                    <p>${currentApp.description || 'Чем могу помочь?'}</p>
+                </div>
+            `;
+            
+            document.getElementById('chatModal').classList.add('active');
+            document.getElementById('chatInput').focus();
+        }
+
+        function closeChat() {
+            document.getElementById('chatModal').classList.remove('active');
+            currentApp = null;
+            chatHistory = [];
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            
+            if (!message || !currentApp) return;
+
+            // Add user message to chat
+            addMessageToChat('user', message);
+            input.value = '';
+            input.style.height = 'auto';
+
+            // Show thinking indicator
+            const thinkingId = addThinkingIndicator();
+
+            try {
+                // Call Claude API
+                const response = await callClaudeAPI(message, currentApp.prompt);
+                
+                // Remove thinking indicator
+                removeThinkingIndicator(thinkingId);
+                
+                // Add assistant response
+                addMessageToChat('assistant', response);
+                
+            } catch (error) {
+                removeThinkingIndicator(thinkingId);
+                addMessageToChat('assistant', 'Извините, произошла ошибка. Проверьте консоль для деталей.');
+                console.error('API Error:', error);
+            }
+        }
+
+        async function callClaudeAPI(userMessage, systemPrompt) {
+            console.log('\ud83d\udcde Вызов Claude API...');
+            console.log('\ud83d\udd11 API ключ доступен:', !!ANTHROPIC_API_KEY);
+
+            if (!ANTHROPIC_API_KEY) {
+                throw new Error('API ключ не найден! Перейдите в Настройки и введите ваш API ключ.');
+            }
+
+            // Build messages array with history
+            const messages = [
+                ...chatHistory,
+                { role: "user", content: userMessage }
+            ];
+
+            const apiUrl = 'https://api.anthropic.com/v1/messages';
+
+            const response = await fetch(CORS_PROXY + encodeURIComponent(apiUrl), {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "anthropic-version": "2023-06-01",
+                    "x-api-key": ANTHROPIC_API_KEY
+                },
+                body: JSON.stringify({
+                    model: "claude-sonnet-4-20250514",
+                    max_tokens: 4096,
+                    system: systemPrompt,
+                    messages: messages
+                })
+            });
+
+            if (!response.ok) {
+                const error = await response.json().catch(() => ({}));
+                console.error('\u274c API \u043e\u0448\u0438\u0431\u043a\u0430:', error);
+                console.error('\u0421\u0442\u0430\u0442\u0443\u0441 \u043e\u0442\u0432\u0435\u0442\u0430:', response.status);
+
+                if (response.status === 401) {
+                    throw new Error('\u041d\u0435\u0432\u0435\u0440\u043d\u044b\u0439 API \u043a\u043b\u044e\u0447. \u041f\u0440\u043e\u0432\u0435\u0440\u044c\u0442\u0435 \u043a\u043b\u044e\u0447 \u0432 \u041d\u0430\u0441\u0442\u0440\u043e\u0439\u043a\u0430\u0445.');
+                }
+                throw new Error(error.error?.message || 'API request failed');
+            }
+
+            const data = await response.json();
+
+            // Extract text from response
+            const assistantMessage = data.content
+                .filter(block => block.type === 'text')
+                .map(block => block.text)
+                .join('\n');
+
+            // Update chat history
+            chatHistory.push(
+                { role: "user", content: userMessage },
+                { role: "assistant", content: assistantMessage }
+            );
+
+            return assistantMessage;
+        }
+
+        function addMessageToChat(role, content) {
+            const messagesContainer = document.getElementById('chatMessages');
+            
+            // Remove welcome message if it exists
+            const welcomeMessage = messagesContainer.querySelector('.welcome-message');
+            if (welcomeMessage) {
+                welcomeMessage.remove();
+            }
+
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${role}`;
+            
+            const avatar = role === 'user' ? '👤' : currentApp.avatar;
+            
+            // Convert markdown-style formatting to HTML
+            const formattedContent = formatMessageContent(content);
+            
+            messageDiv.innerHTML = `
+                <div class="message-avatar">${avatar}</div>
+                <div class="message-content">${formattedContent}</div>
+            `;
+            
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function formatMessageContent(content) {
+            // Simple markdown-like formatting
+            let formatted = content
+                .replace(/\n/g, '<br>')
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em>$1</em>');
+            
+            return formatted;
+        }
+
+        function addThinkingIndicator() {
+            const messagesContainer = document.getElementById('chatMessages');
+            const thinkingDiv = document.createElement('div');
+            const thinkingId = 'thinking-' + Date.now();
+            thinkingDiv.id = thinkingId;
+            thinkingDiv.className = 'message assistant';
+            thinkingDiv.innerHTML = `
+                <div class="message-avatar">${currentApp.avatar}</div>
+                <div class="thinking-indicator">
+                    <div class="thinking-dot"></div>
+                    <div class="thinking-dot"></div>
+                    <div class="thinking-dot"></div>
+                </div>
+            `;
+            messagesContainer.appendChild(thinkingDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            return thinkingId;
+        }
+
+        function removeThinkingIndicator(thinkingId) {
+            const indicator = document.getElementById(thinkingId);
+            if (indicator) {
+                indicator.remove();
+            }
+        }
+
+        // Handle Enter key in chat input
+        document.addEventListener('DOMContentLoaded', function() {
+            const chatInput = document.getElementById('chatInput');
+            
+            chatInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+
+            // Auto-resize textarea
+            chatInput.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+            });
+
+            // Close modal on Escape
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    closeChat();
+                }
+            });
+
+            // Close modal when clicking outside
+            document.getElementById('chatModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeChat();
+                }
+            });
+        });
+
+        // Data
+        // Skills section removed
+
+        // Navigation
+        function showSection(sectionName) {
+            // Hide all sections
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.style.display = 'none';
+            });
+
+            // Show selected section
+            document.getElementById(sectionName).style.display = 'block';
+
+            // Update nav active state
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            if (event && event.target) {
+                event.target.closest('.nav-item').classList.add('active');
+            }
+
+            // Load API key settings when settings section is shown
+            if (sectionName === 'settings') {
+                setTimeout(() => loadApiKeySettings(), 100);
+            }
+        }
+
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 2500);
+        }
+
+        // Simple Cowork functionality
+        let coworkFilesSimple = [];
+        let coworkHistorySimple = [];
+
+        function updateFileCountBadge() {
+            const badge = document.getElementById('fileCountBadge');
+            if (coworkFilesSimple.length > 0) {
+                badge.textContent = coworkFilesSimple.length;
+                badge.style.display = 'inline';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const fileInput = document.getElementById('coworkFileInputSimple');
+            if (fileInput) {
+                fileInput.addEventListener('change', function(e) {
+                    const files = Array.from(e.target.files);
+                    coworkFilesSimple = coworkFilesSimple.concat(files);
+                    updateAttachedPreview();
+                    updateFileCountBadge();
+                    e.target.value = '';
+                });
+            }
+        });
+
+        function updateAttachedPreview() {
+            const preview = document.getElementById('attachedPreview');
+            if (coworkFilesSimple.length === 0) {
+                preview.style.display = 'none';
+                return;
+            }
+
+            preview.style.display = 'flex';
+            preview.innerHTML = coworkFilesSimple.map((f, i) => `
+                <div class="file-chip">
+                    ${getFileIcon(f.name)} ${f.name}
+                    <span class="file-chip-remove" onclick="removeCoworkFile(${i})">✕</span>
+                </div>
+            `).join('');
+        }
+
+        function removeCoworkFile(index) {
+            coworkFilesSimple.splice(index, 1);
+            updateAttachedPreview();
+        }
+
+        async function sendCoworkSimple() {
+            const textarea = document.getElementById('coworkTextareaSimple');
+            const message = textarea.value.trim();
+            
+            if (!message) return;
+
+            // Add user message
+            addCoworkMessageSimple('user', message);
+            textarea.value = '';
+            textarea.style.height = 'auto';
+
+            // Show thinking
+            const thinkingId = addCoworkThinkingSimple();
+
+            try {
+                const response = await callCoworkAPISimple(message);
+                removeCoworkThinkingSimple(thinkingId);
+                addCoworkMessageSimple('assistant', response);
+            } catch (error) {
+                removeCoworkThinkingSimple(thinkingId);
+                addCoworkMessageSimple('assistant', '⚠️ Ошибка: ' + error.message);
+                console.error('Cowork Error:', error);
+            }
+
+            // Clear files after sending
+            coworkFilesSimple = [];
+            updateAttachedPreview();
+        }
+
+        async function callCoworkAPISimple(userMessage) {
+            if (!ANTHROPIC_API_KEY) {
+                throw new Error('API \u043a\u043b\u044e\u0447 \u043d\u0435 \u043d\u0430\u0439\u0434\u0435\u043d! \u041f\u0435\u0440\u0435\u0439\u0434\u0438\u0442\u0435 \u0432 \u041d\u0430\u0441\u0442\u0440\u043e\u0439\u043a\u0438 \u0438 \u0432\u0432\u0435\u0434\u0438\u0442\u0435 \u0432\u0430\u0448 API \u043a\u043b\u044e\u0447.');
+            }
+
+            let systemPrompt = `\u0422\u044b - Cowork Agent, AI-\u0430\u0441\u0441\u0438\u0441\u0442\u0435\u043d\u0442 \u043e\u0442 \u041c\u0435\u0433\u0430\u0424\u043e\u043d\u0430.
+
+\u0422\u0432\u043e\u0438 \u0432\u043e\u0437\u043c\u043e\u0436\u043d\u043e\u0441\u0442\u0438:
+- \u0410\u043d\u0430\u043b\u0438\u0437 \u0434\u0430\u043d\u043d\u044b\u0445 \u0438 \u0441\u043e\u0437\u0434\u0430\u043d\u0438\u0435 \u043e\u0442\u0447\u0435\u0442\u043e\u0432
+- \u041f\u043e\u043c\u043e\u0449\u044c \u0441 \u0442\u0435\u043a\u0441\u0442\u0430\u043c\u0438, \u043f\u0440\u0435\u0437\u0435\u043d\u0442\u0430\u0446\u0438\u044f\u043c\u0438 \u0438 \u0434\u043e\u043a\u0443\u043c\u0435\u043d\u0442\u0430\u043c\u0438
+- \u041e\u0442\u0432\u0435\u0442\u044b \u043d\u0430 \u0432\u043e\u043f\u0440\u043e\u0441\u044b \u0438 \u043a\u043e\u043d\u0441\u0443\u043b\u044c\u0442\u0430\u0446\u0438\u0438
+- \u041f\u043e\u043c\u043e\u0449\u044c \u0441 \u0440\u0430\u0441\u0447\u0435\u0442\u0430\u043c\u0438 \u0438 \u0430\u043d\u0430\u043b\u0438\u0442\u0438\u043a\u043e\u0439
+- \u0413\u0435\u043d\u0435\u0440\u0430\u0446\u0438\u044f \u0438\u0434\u0435\u0439 \u0438 \u0440\u0435\u0448\u0435\u043d\u0438\u0435 \u0437\u0430\u0434\u0430\u0447
+
+\u041e\u0441\u043e\u0431\u0435\u043d\u043d\u043e\u0441\u0442\u0438 \u0440\u0430\u0431\u043e\u0442\u044b:
+- \u041e\u0442\u0432\u0435\u0447\u0430\u0439 \u0441\u0442\u0440\u0443\u043a\u0442\u0443\u0440\u0438\u0440\u043e\u0432\u0430\u043d\u043d\u043e \u0438 \u043f\u043e \u0434\u0435\u043b\u0443
+- \u0418\u0441\u043f\u043e\u043b\u044c\u0437\u0443\u0439 \u0441\u043f\u0438\u0441\u043a\u0438 \u0438 \u0444\u043e\u0440\u043c\u0430\u0442\u0438\u0440\u043e\u0432\u0430\u043d\u0438\u0435 \u0434\u043b\u044f \u043d\u0430\u0433\u043b\u044f\u0434\u043d\u043e\u0441\u0442\u0438
+- \u0415\u0441\u043b\u0438 \u0437\u0430\u0434\u0430\u0447\u0430 \u0442\u0440\u0435\u0431\u0443\u0435\u0442 \u0443\u0442\u043e\u0447\u043d\u0435\u043d\u0438\u0439 - \u0437\u0430\u0434\u0430\u0432\u0430\u0439 \u0432\u043e\u043f\u0440\u043e\u0441\u044b
+- \u041e\u0442\u0432\u0435\u0447\u0430\u0439 \u043d\u0430 \u0440\u0443\u0441\u0441\u043a\u043e\u043c \u044f\u0437\u044b\u043a\u0435`;
+
+            if (coworkFilesSimple.length > 0) {
+                systemPrompt += `\n\n\u0417\u0430\u0433\u0440\u0443\u0436\u0435\u043d\u043d\u044b\u0435 \u0444\u0430\u0439\u043b\u044b:\n${coworkFilesSimple.map(f => `- ${f.name} (${formatFileSize(f.size)})`).join('\n')}`;
+            }
+
+            const messages = [
+                ...coworkHistorySimple,
+                { role: "user", content: userMessage }
+            ];
+
+            const apiUrl = 'https://api.anthropic.com/v1/messages';
+
+            const response = await fetch(CORS_PROXY + encodeURIComponent(apiUrl), {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "anthropic-version": "2023-06-01",
+                    "x-api-key": ANTHROPIC_API_KEY
+                },
+                body: JSON.stringify({
+                    model: "claude-sonnet-4-20250514",
+                    max_tokens: 8192,
+                    system: systemPrompt,
+                    messages: messages
+                })
+            });
+
+            if (!response.ok) {
+                const error = await response.json().catch(() => ({}));
+                console.error('\u274c API \u043e\u0448\u0438\u0431\u043a\u0430:', error);
+                console.error('\u0421\u0442\u0430\u0442\u0443\u0441 \u043e\u0442\u0432\u0435\u0442\u0430:', response.status);
+
+                if (response.status === 401) {
+                    throw new Error('\u041d\u0435\u0432\u0435\u0440\u043d\u044b\u0439 API \u043a\u043b\u044e\u0447. \u041f\u0440\u043e\u0432\u0435\u0440\u044c\u0442\u0435 \u043a\u043b\u044e\u0447 \u0432 \u041d\u0430\u0441\u0442\u0440\u043e\u0439\u043a\u0430\u0445.');
+                }
+                throw new Error(error.error?.message || 'API request failed');
+            }
+
+            const data = await response.json();
+            const assistantMessage = data.content
+                .filter(block => block.type === 'text')
+                .map(block => block.text)
+                .join('\n');
+
+            coworkHistorySimple.push(
+                { role: "user", content: userMessage },
+                { role: "assistant", content: assistantMessage }
+            );
+
+            return assistantMessage;
+        }
+
+        function addCoworkMessageSimple(role, content) {
+            const container = document.getElementById('coworkMessagesSimple');
+            
+            const welcomeMsg = container.querySelector('.welcome-msg');
+            if (welcomeMsg) welcomeMsg.remove();
+
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${role}`;
+            
+            const avatar = role === 'user' ? '👤' : '⚙️';
+            const formatted = formatMessageContent(content);
+            
+            messageDiv.innerHTML = `
+                <div class="message-avatar">${avatar}</div>
+                <div class="message-content">${formatted}</div>
+            `;
+            
+            container.appendChild(messageDiv);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function addCoworkThinkingSimple() {
+            const container = document.getElementById('coworkMessagesSimple');
+            const thinkingDiv = document.createElement('div');
+            const thinkingId = 'thinking-simple-' + Date.now();
+            thinkingDiv.id = thinkingId;
+            thinkingDiv.className = 'message assistant';
+            thinkingDiv.innerHTML = `
+                <div class="message-avatar">⚙️</div>
+                <div class="thinking-indicator">
+                    <div class="thinking-dot"></div>
+                    <div class="thinking-dot"></div>
+                    <div class="thinking-dot"></div>
+                </div>
+            `;
+            container.appendChild(thinkingDiv);
+            container.scrollTop = container.scrollHeight;
+            return thinkingId;
+        }
+
+        function removeCoworkThinkingSimple(thinkingId) {
+            const indicator = document.getElementById(thinkingId);
+            if (indicator) indicator.remove();
+        }
+
+        // Auto-resize textarea
+        document.addEventListener('DOMContentLoaded', function() {
+            const coworkTextarea = document.getElementById('coworkTextareaSimple');
+            if (coworkTextarea) {
+                coworkTextarea.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        sendCoworkSimple();
+                    }
+                });
+
+                coworkTextarea.addEventListener('input', function() {
+                    this.style.height = 'auto';
+                    this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+                });
+            }
+        });
+
+        // Initialize
+        renderMyApps();
+        updateButtons();
+    </script>
+</body>
+</html>
